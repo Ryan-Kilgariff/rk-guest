@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Dashboard | RK Guest</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f3f5f4;
+            color: #202521;
+        }
+        .topbar {
+            padding: 18px 28px;
+            background: #ffffff;
+            border-bottom: 1px solid #e0e4e1;
+        }
+        .topbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .user {
+            font-size: 14px;
+            color: #667068;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 42px 24px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .intro {
+            margin: 8px 0 32px;
+            color: #69716b;
+        }
+        .properties {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .property-card {
+            padding: 24px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+        .property-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .property-logo {
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            overflow: hidden;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .property-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #ffffff;
+        }
+        .property-name {
+            margin: 0;
+            font-size: 20px;
+        }
+        .property-status {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #66806e;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .action {
+            padding: 11px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            background: #f2f5f3;
+            color: #303732;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .action:hover {
+            background: #e8ece9;
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="logo">
+            RK Guest
+        </div>
+        <div class="user">
+            {{ request.user.username }}
+        </div>
+    </div>
+</header>
+<main class="container">
+    <h1>Your properties</h1>
+    <p class="intro">
+        Manage your digital guest experience.
+    </p>
+    <section class="properties">
+        {% for property in properties %}
+            <article class="property-card">
+                <div class="property-header">
+                    <div
+                        class="property-logo"
+                        style="background-color: {{ property.primary_colour }};"
+                    >
+                        {% if property.logo %}
+                            <img
+                                src="{{ property.logo.url }}"
+                                alt="{{ property.name }} logo"
+                            >
+                        {% else %}
+                            {{ property.name|slice:":1" }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h2 class="property-name">
+                            {{ property.name }}
+                        </h2>
+                        <div class="property-status">
+                            Guest guide active
+                        </div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <a
+                        class="action"
+                        href="{% url 'properties:guest_portal' property.slug %}"
+                        target="_blank"
+                    >
+                        View guide
+                    </a>
+                    <a
+                        class="action"
+                        href="{% url 'properties:qr_card' property.slug %}"
+                        target="_blank"
+                    >
+                        QR card
+                    </a>
+                </div>
+            </article>
+        {% empty %}
+            <p>
+                No properties are currently available.
+            </p>
+        {% endfor %}
+    </section>
+</main>
+</body>
+</html>
