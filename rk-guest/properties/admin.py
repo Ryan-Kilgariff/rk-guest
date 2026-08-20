@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.contrib import admin
-from .models import GuestSection, Property
+from .models import GuestSection, Property, PropertyMembership
 class GuestSectionInline(admin.StackedInline):
     model = GuestSection
     extra = 0
@@ -127,4 +127,21 @@ class GuestSectionAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_at",
         "updated_at",
+    )
+@admin.register(PropertyMembership)
+class PropertyMembershipAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "property",
+        "role",
+        "created_at",
+    )
+    list_filter = (
+        "role",
+        "property",
+    )
+    search_fields = (
+        "user__username",
+        "user__email",
+        "property__name",
     )

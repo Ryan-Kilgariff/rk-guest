@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        {% if section %}
+            Edit {{ section.title }}
+        {% else %}
+            Add Guest Section
+        {% endif %}
+        | RK Guest
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f3f5f4;
+            color: #202521;
+        }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .back {
+            display: inline-block;
+            margin-bottom: 24px;
+            text-decoration: none;
+            color: #606962;
+        }
+        h1 {
+            margin: 0 0 8px;
+        }
+        .subtitle {
+            margin: 0 0 28px;
+            color: #717972;
+        }
+        .card {
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 650;
+        }
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d8ddda;
+            border-radius: 10px;
+            font: inherit;
+        }
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .checkbox-field input {
+            width: auto;
+        }
+        .checkbox-field label {
+            margin: 0;
+        }
+        .save-button {
+            padding: 13px 20px;
+            border: 0;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .messages {
+            margin-bottom: 22px;
+        }
+        .message {
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .message.success {
+            background: #edf8f0;
+            color: #28613a;
+        }
+        .message.error {
+            background: #fff0f0;
+            color: #9a2929;
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+    <a
+        class="back"
+        href="{% url 'dashboard:property_manage' property.slug %}"
+    >
+        ← Back to {{ property.name }}
+    </a>
+    <h1>
+        {% if section %}
+            Edit {{ section.title }}
+        {% else %}
+            Add guest section
+        {% endif %}
+    </h1>
+    <p class="subtitle">
+        Manage the information guests see in their digital guide.
+    </p>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="card">
+        <form method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label for="title">
+                    Title
+                </label>
+                <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    value="{% if section %}{{ section.title }}{% endif %}"
+                    required
+                >
+            </div>
+            <div class="field">
+                <label for="icon">
+                    Icon
+                </label>
+                <select
+                    id="icon"
+                    name="icon"
+                >
+                    {% for value, label in icon_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if section and section.icon == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="content">
+                    Guest information
+                </label>
+                <textarea
+                    id="content"
+                    name="content"
+                >{% if section %}{{ section.content }}{% endif %}</textarea>
+            </div>
+            <div class="field">
+                <label for="sort_order">
+                    Display order
+                </label>
+                <input
+                    id="sort_order"
+                    name="sort_order"
+                    type="number"
+                    min="0"
+                    value="{% if section %}{{ section.sort_order }}{% else %}0{% endif %}"
+                >
+            </div>
+            <div class="checkbox-field">
+                <input
+                    id="is_published"
+                    name="is_published"
+                    type="checkbox"
+                    {% if not section or section.is_published %}
+                        checked
+                    {% endif %}
+                >
+                <label for="is_published">
+                    Published
+                </label>
+            </div>
+            <button
+                class="save-button"
+                type="submit"
+            >
+                Save section
+            </button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -22,4 +22,9 @@ urlpatterns = [
         views.qr_card,
         name="qr_card",
     ),
+    path(
+        "p/<slug:slug>/sections/<int:section_id>/view/",
+        views.track_section_view,
+        name="track_section_view",
+    ),
 ]

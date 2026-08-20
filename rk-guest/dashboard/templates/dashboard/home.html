@@ -167,6 +167,12 @@
                 <div class="actions">
                     <a
                         class="action"
+                        href="{% url 'dashboard:property_manage' property.slug %}"
+                    >
+                        Manage property
+                    </a>
+                    <a
+                        class="action"
                         href="{% url 'properties:guest_portal' property.slug %}"
                         target="_blank"
                     >

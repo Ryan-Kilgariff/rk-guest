@@ -284,6 +284,7 @@
                 <details
                     class="section-card"
                     id="{{ section.slug }}"
+                    data-track-url="{% url 'properties:track_section_view' property.slug section.id %}"
                 >
                     <summary>
                         <div class="section-icon">
@@ -329,5 +330,42 @@
         Powered by <strong>RK Guest</strong>
     </footer>
 </div>
+<script>
+    const getCsrfToken = () => {
+        const cookie = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("csrftoken="));
+        return cookie
+            ? decodeURIComponent(cookie.split("=")[1])
+            : "";
+    };
+    document.querySelectorAll(".section-card").forEach(card => {
+        card.addEventListener("toggle", async () => {
+            if (!card.open) {
+                return;
+            }
+            if (card.dataset.tracked === "true") {
+                return;
+            }
+            card.dataset.tracked = "true";
+            try {
+                await fetch(
+                    card.dataset.trackUrl,
+                    {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": getCsrfToken(),
+                        },
+                    }
+                );
+            } catch (error) {
+                console.error(
+                    "Unable to track section view.",
+                    error
+                );
+            }
+        });
+    });
+</script>
 </body>
 </html>

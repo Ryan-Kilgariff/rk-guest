@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 class Property(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -23,6 +24,39 @@ class Property(models.Model):
         return self.name
     def get_guest_path(self):
         return f"/p/{self.slug}/"
+class PropertyMembership(models.Model):
+    ROLE_CHOICES = [
+        ("owner", "Owner"),
+        ("manager", "Manager"),
+    ]
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="property_memberships",
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="manager",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("property", "user"),
+                name="unique_property_user_membership",
+            )
+        ]
+    def __str__(self):
+        return (
+            f"{self.user.username} — "
+            f"{self.property.name} ({self.role})"
+        )
 class GuestSection(models.Model):
     property = models.ForeignKey(
         Property,
@@ -65,3 +99,32 @@ class GuestSection(models.Model):
         ]
     def __str__(self):
         return f"{self.property.name} — {self.title}"
+class GuestPortalVisit(models.Model):
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="portal_visits",
+    )
+    visited_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return (
+            f"{self.property.name} — "
+            f"{self.visited_at}"
+        )
+class GuestSectionView(models.Model):
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="section_views",
+    )
+    section = models.ForeignKey(
+        GuestSection,
+        on_delete=models.CASCADE,
+        related_name="views",
+    )
+    viewed_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return (
+            f"{self.property.name} — "
+            f"{self.section.title}"
+        )

@@ -1,12 +1,20 @@
 import qrcode
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
-from .models import Property
+from .models import (
+    GuestPortalVisit,
+    GuestSection,
+    GuestSectionView,
+    Property,
+)
 def guest_portal(request, slug):
     property_obj = get_object_or_404(
         Property,
         slug=slug,
         is_active=True,
+    )
+    GuestPortalVisit.objects.create(
+        property=property_obj,
     )
     sections = property_obj.guest_sections.filter(
         is_published=True,
@@ -90,4 +98,28 @@ def qr_card(request, slug):
         {
             "property": property_obj,
         },
+    )
+def track_section_view(request, slug, section_id):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "POST request required."},
+            status=405,
+        )
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+        is_published=True,
+    )
+    GuestSectionView.objects.create(
+        property=property_obj,
+        section=section,
+    )
+    return JsonResponse(
+        {"success": True}
     )

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        Manage {{ property.name }} | RK Guest
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f3f5f4;
+            color: #202521;
+        }
+        .topbar {
+            padding: 18px 28px;
+            background: #ffffff;
+            border-bottom: 1px solid #e0e4e1;
+        }
+        .topbar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .back-link {
+            text-decoration: none;
+            color: #59625b;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .subtitle {
+            margin: 8px 0 28px;
+            color: #6b746d;
+        }
+        .card {
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 650;
+        }
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d8ddda;
+            border-radius: 10px;
+            font: inherit;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        input[type="color"] {
+            width: 80px;
+            height: 44px;
+            padding: 4px;
+        }
+        .current-logo {
+            margin-bottom: 12px;
+        }
+        .current-logo img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border: 1px solid #e1e5e2;
+            border-radius: 14px;
+            background: #ffffff;
+        }
+        .save-button {
+            padding: 13px 20px;
+            border: 0;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .guide-card {
+            margin-top: 24px;
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .guide-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .guide-header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .add-button {
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .section-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .guide-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px;
+            border: 1px solid #e4e8e5;
+            border-radius: 12px;
+        }
+        .guide-section-info {
+            min-width: 0;
+        }
+        .guide-section-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .guide-section-meta {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #777f79;
+        }
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .small-action {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #f0f3f1;
+            color: #303732;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .delete-form {
+            margin: 0;
+        }
+        .delete-button {
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 8px;
+            background: #fff0f0;
+            color: #9f2c2c;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .messages {
+            margin-bottom: 22px;
+        }
+        .message {
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .message.success {
+            background: #edf8f0;
+            color: #28613a;
+        }
+        .message.error {
+            background: #fff0f0;
+            color: #9a2929;
+        }
+        .section-actions form {
+            margin: 0;
+        }
+        .move-button {
+            border: 0;
+            cursor: pointer;
+        }
+        .guide-section {
+            transition:
+                opacity 0.15s ease,
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+        .guide-section.dragging {
+            opacity: 0.45;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        .guide-section.drag-over {
+            transform: translateY(3px);
+        }
+        .analytics-card {
+            margin-top: 24px;
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .analytics-card h2 {
+            margin: 0 0 20px;
+            font-size: 22px;
+        }
+        .analytics-summary {
+            margin-bottom: 24px;
+        }
+        .analytics-number {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .analytics-label {
+            margin-top: 6px;
+            color: #727a74;
+            font-size: 14px;
+        }
+        .analytics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .analytics-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf0ee;
+        }
+        .analytics-row:last-child {
+            border-bottom: 0;
+        }
+        .analytics-section-name {
+            font-weight: 650;
+        }
+        .analytics-count {
+            color: #646d66;
+        }
+        .analytics-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .analytics-header h2 {
+            margin: 0;
+        }
+        .analytics-periods {
+            display: flex;
+            gap: 6px;
+            padding: 4px;
+            border-radius: 10px;
+            background: #f1f4f2;
+        }
+        .period-button {
+            padding: 8px 11px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #626a64;
+            font-size: 13px;
+            font-weight: 650;
+        }
+        .period-button:hover {
+            background: #ffffff;
+        }
+        .period-button.active {
+            background: #ffffff;
+            color: #202521;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+        .analytics-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .metric {
+            padding: 18px;
+            border-radius: 14px;
+            background: #f6f8f7;
+        }
+        .metric-number {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .metric-label {
+            margin-top: 5px;
+            color: #717973;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            RK Guest
+        </div>
+        <a
+            class="back-link"
+            href="{% url 'dashboard:home' %}"
+        >
+            Back to dashboard
+        </a>
+    </div>
+</header>
+<main class="container">
+    <h1>
+        Manage {{ property.name }}
+    </h1>
+    <p class="subtitle">
+        Update property details and branding.
+    </p>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <section class="card">
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
+            {% csrf_token %}
+            <div class="field">
+                <label for="name">
+                    Property name
+                </label>
+                <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value="{{ property.name }}"
+                    required
+                >
+            </div>
+            <div class="field">
+                <label for="description">
+                    Description
+                </label>
+                <textarea
+                    id="description"
+                    name="description"
+                >{{ property.description }}</textarea>
+            </div>
+            <div class="field">
+                <label for="phone">
+                    Phone
+                </label>
+                <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    value="{{ property.phone }}"
+                >
+            </div>
+            <div class="field">
+                <label for="email">
+                    Email
+                </label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value="{{ property.email }}"
+                >
+            </div>
+            <div class="field">
+                <label for="website">
+                    Website
+                </label>
+                <input
+                    id="website"
+                    name="website"
+                    type="url"
+                    value="{{ property.website }}"
+                >
+            </div>
+            <div class="field">
+                <label for="address">
+                    Address
+                </label>
+                <textarea
+                    id="address"
+                    name="address"
+                >{{ property.address }}</textarea>
+            </div>
+            <div class="field">
+                <label for="primary_colour">
+                    Primary colour
+                </label>
+                <input
+                    id="primary_colour"
+                    name="primary_colour"
+                    type="color"
+                    value="{{ property.primary_colour }}"
+                >
+            </div>
+            <section class="guide-card">
+                <div class="guide-header">
+                    <div>
+                        <h2>Guest Guide</h2>
+                    </div>
+                    <a
+                        class="add-button"
+                        href="{% url 'dashboard:section_add' property.slug %}"
+                    >
+                        + Add section
+                    </a>
+                </div>
+                <div
+                    class="section-list"
+                    id="section-list"
+                    data-reorder-url="{% url 'dashboard:section_reorder' property.slug %}"
+                >
+                {% for section in sections %}
+                    <div
+                        class="guide-section"
+                        data-section-id="{{ section.id }}"
+                    >
+                        <div class="guide-section-info">
+                            <p class="guide-section-title">
+                                {{ section.title }}
+                            </p>
+                            <div class="guide-section-meta">
+                                {% if section.is_published %}
+                                    Published
+                                {% else %}
+                                    Hidden
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button
+                                class="small-action move-button"
+                                type="button"
+                                data-direction="up"
+                                data-url="{% url 'dashboard:section_move_up' property.slug section.id %}"
+                                title="Move up"
+                            >
+                                ↑
+                            </button>
+                            <button
+                                class="small-action move-button"
+                                type="button"
+                                data-direction="down"
+                                data-url="{% url 'dashboard:section_move_down' property.slug section.id %}"
+                                title="Move down"
+                            >
+                                ↓
+                            </button>
+                            <a
+                                class="small-action"
+                                href="{% url 'dashboard:section_edit' property.slug section.id %}"
+                            >
+                                Edit
+                            </a>
+                            <form
+                                class="delete-form"
+                                method="post"
+                                action="{% url 'dashboard:section_delete' property.slug section.id %}"
+                                onsubmit="return confirm('Delete this guest section?');"
+                            >
+                                {% csrf_token %}
+                                <button
+                                    class="delete-button"
+                                    type="submit"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p>
+                            No guest sections have been created yet.
+                        </p>
+                    {% endfor %}
+                </div>
+            </section>
+            <section class="analytics-card"
+                    id="analytics"
+                    >
+                <div class="analytics-header">
+                    <div>
+                        <h2>Guest Analytics</h2>
+                    </div>
+                    <div class="analytics-periods">
+                        <a
+                            class="period-button {% if analytics_period == 'today' %}active{% endif %}"
+                            href="?period=today#analytics"
+                        >
+                            Today
+                        </a>
+                        <a
+                            class="period-button {% if analytics_period == '7' %}active{% endif %}"
+                            href="?period=7#analytics"
+                        >
+                            7 days
+                        </a>
+                        <a
+                            class="period-button {% if analytics_period == '30' %}active{% endif %}"
+                            href="?period=30#analytics"
+                        >
+                            30 days
+                        </a>
+                    </div>
+                </div>
+                <div class="analytics-metrics">
+                    <div class="metric">
+                        <div class="metric-number">
+                            {{ portal_views }}
+                        </div>
+                        <div class="metric-label">
+                            Guest guide visits
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-number">
+                            {{ section_view_total }}
+                        </div>
+                        <div class="metric-label">
+                            Information sections viewed
+                        </div>
+                    </div>
+                </div>
+                <h3>
+                    Most viewed information
+                </h3>
+                <div class="analytics-list">
+                    {% for stat in section_stats %}
+                        <div class="analytics-row">
+                            <div class="analytics-section-name">
+                                {{ stat.section__title }}
+                            </div>
+                            <div class="analytics-count">
+                                {{ stat.view_count }}
+                                {% if stat.view_count == 1 %}
+                                    view
+                                {% else %}
+                                    views
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>
+                            No guest activity recorded for {{ analytics_label|lower }}.
+                        </p>
+                    {% endfor %}
+                </div>
+            </section>
+            <div class="field">
+                <label for="logo">
+                    Logo
+                </label>
+                {% if property.logo %}
+                    <div class="current-logo">
+                        <img
+                            src="{{ property.logo.url }}"
+                            alt="{{ property.name }} logo"
+                        >
+                    </div>
+                {% endif %}
+                <input
+                    id="logo"
+                    name="logo"
+                    type="file"
+                    accept="image/*"
+                >
+            </div>
+            <button
+                class="save-button"
+                type="submit"
+            >
+                Save changes
+            </button>
+        </form>
+    </section>
+</main>
+<script>
+    const getCsrfToken = () => {
+        const cookie = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("csrftoken="));
+        return cookie
+            ? decodeURIComponent(cookie.split("=")[1])
+            : "";
+    };
+    document.querySelectorAll(".move-button").forEach(button => {
+        button.addEventListener("click", async () => {
+            const section = button.closest(".guide-section");
+            const direction = button.dataset.direction;
+            const response = await fetch(
+                button.dataset.url,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken(),
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                }
+            );
+            if (!response.ok) {
+                console.error("Unable to move section.");
+                return;
+            }
+            if (direction === "up") {
+                const previous = section.previousElementSibling;
+                if (
+                    previous &&
+                    previous.classList.contains("guide-section")
+                ) {
+                    section.parentNode.insertBefore(
+                        section,
+                        previous
+                    );
+                }
+            }
+            if (direction === "down") {
+                const next = section.nextElementSibling;
+                if (
+                    next &&
+                    next.classList.contains("guide-section")
+                ) {
+                    section.parentNode.insertBefore(
+                        next,
+                        section
+                    );
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
