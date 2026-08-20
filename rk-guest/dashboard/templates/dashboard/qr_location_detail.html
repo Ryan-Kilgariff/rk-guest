@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>{{ location.name }} QR | RK Guest</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f3f5f4;
+            color: #202521;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .back {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #606962;
+            text-decoration: none;
+        }
+        .card {
+            padding: 32px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+            text-align: center;
+        }
+        .qr-image {
+            width: 260px;
+            max-width: 100%;
+            margin: 24px auto;
+        }
+        .qr-image img {
+            width: 100%;
+            display: block;
+        }
+        h1 {
+            margin-bottom: 6px;
+        }
+        .property-name {
+            color: #717973;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .action {
+            padding: 12px;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+    <a
+        class="back"
+        href="{% url 'dashboard:property_manage' property.slug %}"
+    >
+        ← Back to {{ property.name }}
+    </a>
+    <section class="card">
+        <h1>{{ location.name }}</h1>
+        <div class="property-name">
+            {{ property.name }}
+        </div>
+        <div class="qr-image">
+            <img
+                src="{% url 'properties:qr_location_image' property.slug location.slug %}"
+                alt="QR code for {{ location.name }}"
+            >
+        </div>
+        <p>
+            This QR code opens the {{ property.name }}
+            guest guide and records scans from
+            <strong>{{ location.name }}</strong>.
+        </p>
+    </section>
+        <div class="actions">
+            <a
+                class="action"
+                href="{% url 'properties:download_qr_location_image' property.slug location.slug %}"
+            >
+                Download QR
+            </a>
+            <a
+                class="action"
+                href="{% url 'properties:qr_location_card' property.slug location.slug %}"
+                target="_blank"
+            >
+                Plaque preview
+            </a>
+        </div>
+    </main>
+</body>
+</html>

@@ -42,4 +42,34 @@ urlpatterns = [
         views.section_reorder,
         name="section_reorder",
     ),
+    path(
+        "properties/<slug:slug>/qr-locations/add/",
+        views.qr_location_add,
+        name="qr_location_add",
+    ),
+    path(
+        "properties/<slug:slug>/qr-locations/<int:location_id>/",
+        views.qr_location_detail,
+        name="qr_location_detail",
+        ),
+    path(
+        "properties/<slug:slug>/qr-locations/<int:location_id>/edit/",
+        views.qr_location_edit,
+        name="qr_location_edit",
+        ),
+    path(
+        "properties/<slug:slug>/qr-locations/<int:location_id>/delete/",
+        views.qr_location_delete,
+        name="qr_location_delete",
+    ),
+    path(
+        "properties/<slug:slug>/sections/<int:section_id>/links/add/",
+        views.section_link_add,
+        name="section_link_add",
+    ),
+    path(
+        "properties/<slug:slug>/sections/<int:section_id>/links/<int:link_id>/delete/",
+        views.section_link_delete,
+        name="section_link_delete",
+    ),
 ]

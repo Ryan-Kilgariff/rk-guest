@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        {% if location %}
+            Edit {{ location.name }}
+        {% else %}
+            Add QR Location
+        {% endif %}
+        | RK Guest
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #f3f5f4;
+            color: #202521;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .back {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #606962;
+            text-decoration: none;
+        }
+        .card {
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 650;
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d8ddda;
+            border-radius: 10px;
+            font: inherit;
+        }
+        .save-button {
+            padding: 13px 20px;
+            border: 0;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 10px;
+        }
+        .message.error {
+            background: #fff0f0;
+            color: #9a2929;
+        }
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+        .checkbox-field input {
+            width: auto;
+        }
+        .checkbox-field label {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<main class="container">
+    <a
+        class="back"
+        href="{% url 'dashboard:property_manage' property.slug %}"
+    >
+        ← Back to {{ property.name }}
+    </a>
+    <h1>
+        {% if location %}
+            Edit {{ location.name }}
+        {% else %}
+            Add QR location
+        {% endif %}
+    </h1>
+    <p>
+        Create a physical location for an RK Guest QR code.
+    </p>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <section class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label for="name">
+                Location name
+            </label>
+            <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Example: Room 101"
+                value="{% if location %}{{ location.name }}{% endif %}"
+                required
+            >
+        </div>
+        {% if location %}
+            <div class="checkbox-field">
+                <input
+                    id="is_active"
+                    name="is_active"
+                    type="checkbox"
+                    {% if location.is_active %}
+                        checked
+                    {% endif %}
+                >
+                <label for="is_active">
+                    QR location active
+                </label>
+            </div>
+        {% endif %}
+        <button
+            class="save-button"
+            type="submit"
+        >
+            {% if location %}
+                Save changes
+            {% else %}
+                Create QR location
+            {% endif %}
+        </button>
+    </form>
+</section>
+</main>
+</body>
+</html>

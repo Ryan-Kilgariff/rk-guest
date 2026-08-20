@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        {{ location.name }} | RK Guest
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            background: #eceeed;
+            color: #ffffff;
+        }
+        .plaque {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 38px 30px;
+            border-radius: 24px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #111111,
+                    #242424
+                );
+            text-align: center;
+            box-shadow:
+                0 18px 50px
+                rgba(0, 0, 0, 0.22);
+        }
+        .logo {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .initial {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: rgba(
+                255,
+                255,
+                255,
+                0.12
+            );
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .property-name {
+            margin: 0;
+            font-size: 26px;
+        }
+        .location-name {
+            margin: 8px 0 28px;
+            color: #c7cbc8;
+            font-size: 16px;
+        }
+        .qr-frame {
+            width: 250px;
+            max-width: 100%;
+            margin: 0 auto 26px;
+            padding: 14px;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .qr-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .scan-title {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 800;
+        }
+        .scan-text {
+            max-width: 290px;
+            margin: 10px auto 0;
+            line-height: 1.55;
+            color: #c8ccc9;
+        }
+        .powered {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid
+                rgba(255,255,255,0.12);
+            font-size: 12px;
+            color: #929792;
+        }
+        .actions {
+            width: 100%;
+            max-width: 420px;
+            margin: 18px auto 0;
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 10px;
+        }
+        .action {
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: #1f2421;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+        @media print {
+            body {
+                padding: 0;
+                background: #ffffff;
+            }
+            .plaque {
+                box-shadow: none;
+            }
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="plaque">
+    {% if property.logo %}
+        <div class="logo">
+            <img
+                src="{{ property.logo.url }}"
+                alt="{{ property.name }} logo"
+            >
+        </div>
+    {% else %}
+        <div class="initial">
+            {{ property.name|slice:":1" }}
+        </div>
+    {% endif %}
+    <h1 class="property-name">
+        {{ property.name }}
+    </h1>
+    <div class="location-name">
+        {{ location.name }}
+    </div>
+    <div class="qr-frame">
+        <img
+            src="{% url 'properties:qr_location_image' property.slug location.slug %}"
+            alt="QR code for {{ location.name }}"
+        >
+    </div>
+    <p class="scan-title">
+        Scan for your guest guide
+    </p>
+    <p class="scan-text">
+        Wi-Fi, breakfast, parking,
+        facilities, local information
+        and everything you need
+        during your stay.
+    </p>
+    <div class="powered">
+        Powered by RK Guest
+    </div>
+</div>
+<div class="actions">
+    <button
+        class="action"
+        onclick="window.print()"
+    >
+        Print
+    </button>
+    <a
+        class="action"
+        href="{% url 'properties:download_qr_location_image' property.slug location.slug %}"
+    >
+        Download QR
+    </a>
+</div>
+</body>
+</html>

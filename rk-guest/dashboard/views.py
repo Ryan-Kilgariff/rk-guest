@@ -1,6 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from properties.models import GuestSection, Property
+from properties.models import (
+    GuestSectionLink,
+    GuestSection,
+    Property,
+    QRLocation,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.utils.text import slugify
@@ -9,6 +14,7 @@ from django.http import JsonResponse
 from django.db.models import Count
 from datetime import timedelta
 from django.utils import timezone
+from django.urls import reverse
 @login_required
 def home(request):
     properties = Property.objects.filter(
@@ -88,13 +94,69 @@ def property_manage(request, slug):
         analytics_period = "30"
         start_date = now - timedelta(days=30)
         analytics_label = "Last 30 days"
-    portal_views = property_obj.portal_visits.filter(
-        visited_at__gte=start_date,
-    ).count()
-    section_views = property_obj.section_views.filter(
-        viewed_at__gte=start_date,
+    # -----------------------------------------
+    # Guest portal analytics
+    # -----------------------------------------
+    portal_visit_queryset = (
+        property_obj.portal_visits
+        .filter(
+            visited_at__gte=start_date,
+        )
+    )
+    portal_views = portal_visit_queryset.count()
+    unique_guest_sessions = (
+        portal_visit_queryset
+        .exclude(session_key="")
+        .values("session_key")
+        .distinct()
+        .count()
+    )
+    # -----------------------------------------
+    # Guest section analytics
+    # -----------------------------------------
+    section_views = (
+        property_obj.section_views
+        .filter(
+            viewed_at__gte=start_date,
+        )
     )
     section_view_total = section_views.count()
+    engaged_sessions = (
+        section_views
+        .exclude(session_key="")
+        .values("session_key")
+        .distinct()
+        .count()
+    )
+    if unique_guest_sessions:
+        engagement_rate = round(
+            (
+                engaged_sessions
+                / unique_guest_sessions
+            )
+            * 100
+        )
+    else:
+        engagement_rate = 0
+    qr_scan_queryset = (
+        property_obj.qr_scans
+        .filter(
+            scanned_at__gte=start_date,
+        )
+    )
+    qr_scan_total = qr_scan_queryset.count()
+    qr_location_stats = (
+        qr_scan_queryset
+        .values(
+            "location__id",
+            "location__name",
+            "location__is_active",
+        )
+        .annotate(
+            scan_count=Count("id"),
+        )
+        .order_by("-scan_count")
+    )
     section_stats = (
         section_views
         .values(
@@ -112,14 +174,19 @@ def property_manage(request, slug):
         {
             "property": property_obj,
             "sections": property_obj.guest_sections.all(),
+            "qr_locations": property_obj.qr_locations.all(),
             "analytics_period": analytics_period,
             "analytics_label": analytics_label,
             "portal_views": portal_views,
+            "unique_guest_sessions": unique_guest_sessions,
             "section_view_total": section_view_total,
+            "engaged_sessions": engaged_sessions,
+            "engagement_rate": engagement_rate,
             "section_stats": section_stats,
+            "qr_scan_total": qr_scan_total,
+            "qr_location_stats": qr_location_stats,
         },
     )
-@login_required
 @login_required
 def section_add(request, slug):
     property_obj = get_object_or_404(
@@ -160,6 +227,14 @@ def section_add(request, slug):
             slug=section_slug,
             icon=request.POST.get("icon", "info"),
             content=content,
+            copy_label=request.POST.get(
+                "copy_label",
+                "",
+            ).strip(),
+            copy_value=request.POST.get(
+                "copy_value",
+                "",
+            ).strip(),
             sort_order=request.POST.get(
                 "sort_order",
                 0,
@@ -237,6 +312,14 @@ def section_edit(request, slug, section_id):
         )
         section.content = request.POST.get(
             "content",
+            "",
+        ).strip()
+        section.copy_label = request.POST.get(
+            "copy_label",
+            "",
+        ).strip()
+        section.copy_value = request.POST.get(
+            "copy_value",
             "",
         ).strip()
         section.sort_order = request.POST.get(
@@ -383,4 +466,286 @@ def section_reorder(request, slug):
         {
             "success": True,
         }
+    )
+@login_required
+def qr_location_add(request, slug):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    if request.method == "POST":
+        name = request.POST.get(
+            "name",
+            "",
+        ).strip()
+        if not name:
+            messages.error(
+                request,
+                "QR location name is required.",
+            )
+            return redirect(
+                "dashboard:qr_location_add",
+                slug=property_obj.slug,
+            )
+        location_slug = slugify(name)
+        duplicate = QRLocation.objects.filter(
+            property=property_obj,
+            slug=location_slug,
+        ).exists()
+        if duplicate:
+            messages.error(
+                request,
+                "A QR location with this name already exists.",
+            )
+            return redirect(
+                "dashboard:qr_location_add",
+                slug=property_obj.slug,
+            )
+        QRLocation.objects.create(
+            property=property_obj,
+            name=name,
+            slug=location_slug,
+            is_active=True,
+        )
+        messages.success(
+            request,
+            f"{name} QR location was created.",
+        )
+        return redirect(
+            "dashboard:property_manage",
+            slug=property_obj.slug,
+        )
+    return render(
+        request,
+        "dashboard/qr_location_form.html",
+        {
+            "property": property_obj,
+            "location": None,
+        },
+    )
+@login_required
+def qr_location_edit(request, slug, location_id):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    location = get_object_or_404(
+        QRLocation,
+        id=location_id,
+        property=property_obj,
+    )
+    if request.method == "POST":
+        name = request.POST.get(
+            "name",
+            "",
+        ).strip()
+        if not name:
+            messages.error(
+                request,
+                "QR location name is required.",
+            )
+            return redirect(
+                "dashboard:qr_location_edit",
+                slug=property_obj.slug,
+                location_id=location.id,
+            )
+        location_slug = slugify(name)
+        duplicate = (
+            QRLocation.objects
+            .filter(
+                property=property_obj,
+                slug=location_slug,
+            )
+            .exclude(
+                id=location.id,
+            )
+            .exists()
+        )
+        if duplicate:
+            messages.error(
+                request,
+                "A QR location with this name already exists.",
+            )
+            return redirect(
+                "dashboard:qr_location_edit",
+                slug=property_obj.slug,
+                location_id=location.id,
+            )
+        location.name = name
+        location.slug = location_slug
+        location.is_active = (
+            request.POST.get("is_active") == "on"
+        )
+        location.save()
+        messages.success(
+            request,
+            f"{location.name} was updated successfully.",
+        )
+        return redirect(
+            "dashboard:property_manage",
+            slug=property_obj.slug,
+        )
+    return render(
+        request,
+        "dashboard/qr_location_form.html",
+        {
+            "property": property_obj,
+            "location": location,
+        },
+    )
+@login_required
+def qr_location_detail(request, slug, location_id):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    location = get_object_or_404(
+        QRLocation,
+        id=location_id,
+        property=property_obj,
+    )
+    return render(
+        request,
+        "dashboard/qr_location_detail.html",
+        {
+            "property": property_obj,
+            "location": location,
+        },
+    )
+@login_required
+def qr_location_delete(request, slug, location_id):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    location = get_object_or_404(
+        QRLocation,
+        id=location_id,
+        property=property_obj,
+    )
+    if request.method == "POST":
+        location_name = location.name
+        location.delete()
+        messages.success(
+            request,
+            f"{location_name} QR location was deleted.",
+        )
+    return redirect(
+        "dashboard:property_manage",
+        slug=property_obj.slug,
+    )
+@login_required
+def section_link_add(
+    request,
+    slug,
+    section_id,
+):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+    )
+    if request.method == "POST":
+        label = request.POST.get(
+            "link_label",
+            "",
+        ).strip()
+        url = request.POST.get(
+            "link_url",
+            "",
+        ).strip()
+        if not label or not url:
+            messages.error(
+                request,
+                "Both the link label and URL are required.",
+            )
+            return redirect(
+                "dashboard:section_edit",
+                slug=property_obj.slug,
+                section_id=section.id,
+            )
+        last_link = (
+            section.links
+            .order_by("-sort_order")
+            .first()
+        )
+        next_order = (
+            last_link.sort_order + 10
+            if last_link
+            else 10
+        )
+        GuestSectionLink.objects.create(
+            section=section,
+            label=label,
+            url=url,
+            sort_order=next_order,
+            is_active=True,
+        )
+        messages.success(
+            request,
+            f"{label} was added.",
+        )
+    return redirect(
+        reverse(
+            "dashboard:section_edit",
+            kwargs={
+                "slug": property_obj.slug,
+                "section_id": section.id,
+            },
+        )
+        + "#section-links"
+    )
+@login_required
+def section_link_delete(
+    request,
+    slug,
+    section_id,
+    link_id,
+):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+    )
+    link = get_object_or_404(
+        GuestSectionLink,
+        id=link_id,
+        section=section,
+    )
+    if request.method == "POST":
+        label = link.label
+        link.delete()
+        messages.success(
+            request,
+            f"{label} was removed.",
+        )
+    return redirect(
+        reverse(
+            "dashboard:section_edit",
+            kwargs={
+                "slug": property_obj.slug,
+                "section_id": section.id,
+            },
+        )
+        + "#section-links"
     )

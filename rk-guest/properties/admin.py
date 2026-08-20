@@ -5,7 +5,13 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.contrib import admin
-from .models import GuestSection, Property, PropertyMembership
+from .models import (
+    GuestSection,
+    Property,
+    PropertyMembership,
+    QRLocation,
+    QRScan,
+)
 class GuestSectionInline(admin.StackedInline):
     model = GuestSection
     extra = 0
@@ -144,4 +150,41 @@ class PropertyMembershipAdmin(admin.ModelAdmin):
         "user__username",
         "user__email",
         "property__name",
+    )
+@admin.register(QRLocation)
+class QRLocationAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "property",
+        "slug",
+        "is_active",
+        "updated_at",
+    )
+    list_filter = (
+        "property",
+        "is_active",
+    )
+    search_fields = (
+        "name",
+        "property__name",
+    )
+    prepopulated_fields = {
+        "slug": ("name",),
+    }
+@admin.register(QRScan)
+class QRScanAdmin(admin.ModelAdmin):
+    list_display = (
+        "property",
+        "location",
+        "scanned_at",
+    )
+    list_filter = (
+        "property",
+        "location",
+    )
+    readonly_fields = (
+        "property",
+        "location",
+        "session_key",
+        "scanned_at",
     )

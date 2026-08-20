@@ -114,6 +114,59 @@
             background: #fff0f0;
             color: #9a2929;
         }
+        .links-card {
+            margin-top: 24px;
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        .links-header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .links-header p {
+            margin: 6px 0 22px;
+            color: #717972;
+            line-height: 1.5;
+        }
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .link-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 14px;
+            border: 1px solid #e4e8e5;
+            border-radius: 10px;
+        }
+        .link-title {
+            font-weight: 700;
+        }
+        .link-url {
+            margin-top: 4px;
+            color: #777f79;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .link-delete {
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 8px;
+            background: #fff0f0;
+            color: #9f2c2c;
+            font-weight: 650;
+            cursor: pointer;
+        }
+        .add-link-form {
+            padding-top: 22px;
+            border-top: 1px solid #e7ebe8;
+        }
     </style>
 </head>
 <body>
@@ -188,6 +241,30 @@
                 >{% if section %}{{ section.content }}{% endif %}</textarea>
             </div>
             <div class="field">
+                <label for="copy_label">
+                    Copyable information label
+                </label>
+                <input
+                    id="copy_label"
+                    name="copy_label"
+                    type="text"
+                    placeholder="Example: Wi-Fi password"
+                    value="{% if section %}{{ section.copy_label }}{% endif %}"
+                >
+            </div>
+            <div class="field">
+                <label for="copy_value">
+                    Copyable value
+                </label>
+                <input
+                    id="copy_value"
+                    name="copy_value"
+                    type="text"
+                    placeholder="Example: welcome123"
+                    value="{% if section %}{{ section.copy_value }}{% endif %}"
+                >
+            </div>
+            <div class="field">
                 <label for="sort_order">
                     Display order
                 </label>
@@ -220,6 +297,88 @@
             </button>
         </form>
     </section>
+        {% if section %}
+            <section 
+                class="links-card"
+                id="section-links"
+            >
+                <div class="links-header">
+                    <div>
+                        <h2>Section links</h2>
+                        <p>
+                            Add useful actions guests can open
+                            directly from this section.
+                        </p>
+                    </div>
+                </div>
+                {% if section.links.all %}
+                    <div class="link-list">
+                        {% for link in section.links.all %}
+                            <div class="link-item">
+                                <div>
+                                    <div class="link-title">
+                                        {{ link.label }}
+                                    </div>
+                                    <div class="link-url">
+                                        {{ link.url }}
+                                    </div>
+                                </div>
+                                <form
+                                    method="post"
+                                    action="{% url 'dashboard:section_link_delete' property.slug section.id link.id %}"
+                                    onsubmit="return confirm('Remove this link?');"
+                                >
+                                    {% csrf_token %}
+                                    <button
+                                        class="link-delete"
+                                        type="submit"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form
+                    class="add-link-form"
+                    method="post"
+                    action="{% url 'dashboard:section_link_add' property.slug section.id %}"
+                >
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="link_label">
+                            Button label
+                        </label>
+                        <input
+                            id="link_label"
+                            name="link_label"
+                            type="text"
+                            placeholder="Example: View breakfast menu"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="link_url">
+                            URL
+                        </label>
+                        <input
+                            id="link_url"
+                            name="link_url"
+                            type="url"
+                            placeholder="https://example.com/menu"
+                            required
+                        >
+                    </div>
+                    <button
+                        class="save-button"
+                        type="submit"
+                    >
+                        + Add link
+                    </button>
+                </form>
+            </section>
+        {% endif %}
 </main>
 </body>
 </html>

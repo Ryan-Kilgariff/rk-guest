@@ -27,4 +27,24 @@ urlpatterns = [
         views.track_section_view,
         name="track_section_view",
     ),
+    path(
+        "p/<slug:slug>/q/<slug:location_slug>/",
+        views.qr_location_redirect,
+        name="qr_location_redirect",
+    ),
+    path(
+        "p/<slug:slug>/q/<slug:location_slug>/qr/",
+        views.qr_location_image,
+        name="qr_location_image",
+    ),
+    path(
+        "p/<slug:slug>/q/<slug:location_slug>/qr/download/",
+        views.download_qr_location_image,
+        name="download_qr_location_image",
+    ),
+    path(
+        "p/<slug:slug>/q/<slug:location_slug>/card/",
+        views.qr_location_card,
+        name="qr_location_card",
+    ),
 ]

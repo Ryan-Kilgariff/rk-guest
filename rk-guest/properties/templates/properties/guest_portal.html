@@ -210,6 +210,111 @@
                 padding-left: 18px;
             }
         }
+        .copy-block {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f3f5f4;
+        }
+        .copy-label {
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666e68;
+        }
+        .copy-value-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .copy-value {
+            min-width: 0;
+            font-size: 16px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+        .copy-button {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #1f2b24;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .section-action {
+            display: block;
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #1f2b24;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .guest-support {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e1e5e2;
+            border-radius: 16px;
+            background: #f6f8f7;
+        }
+        .guest-support-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .guest-support-icon {
+            flex: 0 0 42px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #ffffff;
+            font-size: 20px;
+        }
+        .guest-support h2 {
+            margin: 0;
+            font-size: 19px;
+        }
+        .guest-support p {
+            margin: 5px 0 0;
+            color: #69716b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .guest-support-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+        .support-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #252b27;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 650;
+        }
+        .support-action:hover {
+            background: #eef2ef;
+        }
+        .support-arrow {
+            color: #7b837d;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -250,7 +355,7 @@
                     href="tel:{{ property.phone }}"
                 >
                     <span class="quick-action-icon">☎️</span>
-                    <span>Call reception</span>
+                    <span>Call</span>
                 </a>
             {% endif %}
             {% if property.website %}
@@ -317,6 +422,39 @@
                     </summary>
                     <div class="section-content">
                         {{ section.content|linebreaks }}
+                        {% if section.copy_value %}
+                            <div class="copy-block">
+                                {% if section.copy_label %}
+                                    <div class="copy-label">
+                                        {{ section.copy_label }}
+                                    </div>
+                                {% endif %}
+                                <div class="copy-value-row">
+                                    <span class="copy-value">
+                                        {{ section.copy_value }}
+                                    </span>
+                                    <button
+                                        class="copy-button"
+                                        type="button"
+                                        data-copy="{{ section.copy_value }}"
+                                    >
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                            {% for link in section.links.all %}
+                                {% if link.is_active %}
+                                    <a
+                                        class="section-action"
+                                        href="{{ link.url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {{ link.label }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
                     </div>
                 </details>
             {% empty %}
@@ -324,6 +462,57 @@
                     Guest information is currently unavailable.
                 </p>
             {% endfor %}
+        </section>
+        <section class="guest-support">
+            <div class="guest-support-header">
+                <div class="guest-support-icon">
+                    ☎
+                </div>
+                <div>
+                    <h2>Need help?</h2>
+                    <p>
+                        Contact the property if you need
+                        assistance during your stay.
+                    </p>
+                </div>
+            </div>
+            <div class="guest-support-actions">
+                {% if property.phone %}
+                    <a
+                        class="support-action"
+                        href="tel:{{ property.phone }}"
+                    >
+                        <span>Call reception</span>
+                        <span class="support-arrow">
+                            →
+                        </span>
+                    </a>
+                {% endif %}
+                {% if property.email %}
+                    <a
+                        class="support-action"
+                        href="mailto:{{ property.email }}"
+                    >
+                        <span>Email property</span>
+                        <span class="support-arrow">
+                            →
+                        </span>
+                    </a>
+                {% endif %}
+                {% if property.address %}
+                    <a
+                        class="support-action"
+                        href="https://www.google.com/maps/search/?api=1&query={{ property.address|urlencode }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span>Get directions</span>
+                        <span class="support-arrow">
+                            →
+                        </span>
+                    </a>
+                {% endif %}
+            </div>
         </section>
     </main>
     <footer class="footer">
@@ -366,6 +555,24 @@
             }
         });
     });
+document.querySelectorAll(".copy-button").forEach(button => {
+    button.addEventListener("click", async () => {
+        const value = button.dataset.copy;
+        try {
+            await navigator.clipboard.writeText(value);
+            const originalText = button.textContent;
+            button.textContent = "Copied";
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1500);
+        } catch (error) {
+            console.error(
+                "Unable to copy value:",
+                error
+            );
+        }
+    });
+});
 </script>
 </body>
 </html>

@@ -308,9 +308,14 @@
         }
         .analytics-metrics {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             margin-bottom: 28px;
+        }
+        @media (max-width: 760px) {
+            .analytics-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
         .metric {
             padding: 18px;
@@ -325,6 +330,71 @@
             margin-top: 5px;
             color: #717973;
             font-size: 13px;
+        }
+        .qr-analytics {
+            margin-top: 28px;
+            padding: 24px;
+            border: 1px solid #e0e4e1;
+            border-radius: 16px;
+            background: #f6f8f7;
+        }
+        .qr-analytics-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        .qr-analytics-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .qr-analytics-header p {
+            margin: 6px 0 0;
+            color: #717973;
+            font-size: 14px;
+        }
+        .qr-total {
+            flex: 0 0 auto;
+            text-align: right;
+        }
+        .qr-total-number {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .qr-total-label {
+            margin-top: 6px;
+            color: #717973;
+            font-size: 13px;
+        }
+        .analytics-empty {
+            margin: 0;
+            color: #717973;
+        }
+        @media (max-width: 600px) {
+            .qr-analytics-header {
+                flex-direction: column;
+            }
+            .qr-total {
+                text-align: left;
+            }
+        }
+        .status {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status.active {
+            background: #edf8f0;
+            color: #28613a;
+        }
+        .status.inactive {
+            background: #fff0f0;
+            color: #9a2929;
         }
     </style>
 </head>
@@ -464,11 +534,18 @@
                             <p class="guide-section-title">
                                 {{ section.title }}
                             </p>
-                            <div class="guide-section-meta">
-                                {% if section.is_published %}
-                                    Published
+                           <div class="guide-section-meta">
+                                {% if location.is_active %}
+                                    Active
                                 {% else %}
-                                    Hidden
+                                    Inactive
+                                {% endif %}
+                                ·
+                                {{ location.scans.count }}
+                                {% if location.scans.count == 1 %}
+                                    scan
+                                {% else %}
+                                    scans
                                 {% endif %}
                             </div>
                         </div>
@@ -520,6 +597,69 @@
                     {% endfor %}
                 </div>
             </section>
+            <section class="guide-card">
+                <div class="guide-header">
+                    <div>
+                        <h2>QR Locations</h2>
+                    </div>
+                    <a
+                        class="add-button"
+                        href="{% url 'dashboard:qr_location_add' property.slug %}"
+                    >
+                        + Add QR location
+                    </a>
+                </div>
+                <div class="section-list">
+                    {% for location in qr_locations %}
+                        <div class="guide-section">
+                            <div class="guide-section-info">
+                                <p class="guide-section-title">
+                                    {{ location.name }}
+                                </p>
+                                <div class="guide-section-meta">
+                                    {% if location.is_active %}
+                                        Active
+                                    {% else %}
+                                        Inactive
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="section-actions">
+                                <a
+                                    class="small-action"
+                                    href="{% url 'dashboard:qr_location_edit' property.slug location.id %}"
+                                >
+                                    Edit
+                                </a>
+                                <a
+                                    class="small-action"
+                                    href="{% url 'dashboard:qr_location_detail' property.slug location.id %}"
+                                >
+                                    View QR
+                                </a>
+                                <form
+                                    class="delete-form"
+                                    method="post"
+                                    action="{% url 'dashboard:qr_location_delete' property.slug location.id %}"
+                                    onsubmit="return confirm('Delete this QR location?');"
+                                >
+                                    {% csrf_token %}
+                                    <button
+                                        class="delete-button"
+                                        type="submit"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>
+                            No QR locations have been created yet.
+                        </p>
+                    {% endfor %}
+                </div>
+            </section>
             <section class="analytics-card"
                     id="analytics"
                     >
@@ -551,12 +691,37 @@
                 <div class="analytics-metrics">
                     <div class="metric">
                         <div class="metric-number">
+                            {{ unique_guest_sessions }}
+                        </div>
+                        <div class="metric-label">
+                            Guest sessions
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-number">
                             {{ portal_views }}
                         </div>
                         <div class="metric-label">
-                            Guest guide visits
+                            Guide views
                         </div>
                     </div>
+                    <div class="metric">
+                        <div class="metric-number">
+                            {{ section_view_total }}
+                        </div>
+                        <div class="metric-label">
+                            Information views
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-number">
+                            {{ engagement_rate }}%
+                        </div>
+                        <div class="metric-label">
+                            Engagement rate
+                        </div>
+                    </div>
+                </div>
                     <div class="metric">
                         <div class="metric-number">
                             {{ section_view_total }}
@@ -572,6 +737,7 @@
                 <div class="analytics-list">
                     {% for stat in section_stats %}
                         <div class="analytics-row">
+                        </div>
                             <div class="analytics-section-name">
                                 {{ stat.section__title }}
                             </div>
@@ -590,6 +756,54 @@
                         </p>
                     {% endfor %}
                 </div>
+            <div class="qr-analytics">
+                <div class="qr-analytics-header">
+                    <div>
+                        <h3>QR Activity</h3>
+                        <p>
+                            See which physical guest touchpoints are being used.
+                        </p>
+                    </div>
+                    <div class="qr-total">
+                        <div class="qr-total-number">
+                            {{ qr_scan_total }}
+                        </div>
+                        <div class="qr-total-label">
+                            QR scans
+                        </div>
+                    </div>
+                </div>
+                <div class="analytics-list">
+                    {% for stat in qr_location_stats %}
+                        <div class="analytics-row">
+                            <div class="analytics-section-name">
+                                {{ stat.location__name }}
+                                {% if stat.location__is_active %}
+                                    <span class="status active">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="status inactive">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="analytics-count">
+                                {{ stat.scan_count }}
+                                {% if stat.scan_count == 1 %}
+                                    scan
+                                {% else %}
+                                    scans
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="analytics-empty">
+                            No QR scans recorded for this period.
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
             </section>
             <div class="field">
                 <label for="logo">
