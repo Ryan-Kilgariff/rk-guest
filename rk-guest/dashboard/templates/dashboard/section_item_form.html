@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        Edit {{ item.title }} | RK Guest
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #f4f6f5;
+            color: #252b27;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+        .page {
+            width: min(760px, calc(100% - 32px));
+            margin: 40px auto;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .card {
+            padding: 28px;
+            border: 1px solid #e0e4e1;
+            border-radius: 18px;
+            background: #ffffff;
+        }
+        h1 {
+            margin: 0 0 8px;
+        }
+        .intro {
+            margin: 0 0 26px;
+            color: #717972;
+            line-height: 1.5;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        .field label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 700;
+        }
+        .field input[type="text"] {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #d7ddd9;
+            border-radius: 9px;
+            font: inherit;
+        }
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 22px 0;
+        }
+        .checkbox-field label {
+            font-weight: 650;
+        }
+        .save-button {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: #252b27;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <a
+            class="back-link"
+            href="{% url 'dashboard:section_edit' property.slug section.id %}#section-items"
+        >
+            ← Back to {{ section.title }}
+        </a>
+        <section class="card">
+            <h1>
+                Edit facility
+            </h1>
+            <p class="intro">
+                Update the information guests see
+                for this facility.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="item_title">
+                        Facility name
+                    </label>
+                    <input
+                        id="item_title"
+                        name="item_title"
+                        type="text"
+                        value="{{ item.title }}"
+                        required
+                    >
+                </div>
+                <div class="field">
+                    <label for="item_description">
+                        Description
+                    </label>
+                    <input
+                        id="item_description"
+                        name="item_description"
+                        type="text"
+                        value="{{ item.description }}"
+                        placeholder="Example: Open daily from 6:00am – 10:00pm"
+                    >
+                </div>
+                <div class="checkbox-field">
+                    <input
+                        id="is_active"
+                        name="is_active"
+                        type="checkbox"
+                        {% if item.is_active %}checked{% endif %}
+                    >
+                    <label for="is_active">
+                        Visible to guests
+                    </label>
+                </div>
+                <button
+                    class="save-button"
+                    type="submit"
+                >
+                    Save changes
+                </button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

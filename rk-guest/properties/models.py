@@ -58,13 +58,6 @@ class PropertyMembership(models.Model):
             f"{self.property.name} ({self.role})"
         )
 class GuestSection(models.Model):
-    property = models.ForeignKey(
-        Property,
-        on_delete=models.CASCADE,
-        related_name="guest_sections",
-    )
-    title = models.CharField(max_length=100)
-    slug = models.SlugField()
     ICON_CHOICES = [
     ("info", "Information"),
     ("wifi", "Wi-Fi"),
@@ -76,12 +69,84 @@ class GuestSection(models.Model):
     ("faq", "FAQ"),
     ("contact", "Contact"),
     ]
+    SECTION_TYPE_CHOICES = [
+    ("generic", "General information"),
+    ("wifi", "Wi-Fi"),
+    ("stay_times", "Check-in / Check-out"),
+    ("breakfast", "Breakfast / Dining"),
+    ("parking", "Parking"),
+    ("facilities", "Facilities"),
+    ]
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="guest_sections",
+    )
+    title = models.CharField(max_length=100)
+    slug = models.SlugField()
+    section_type = models.CharField(
+        max_length=30,
+        choices=SECTION_TYPE_CHOICES,
+        default="generic",
+    )
     icon = models.CharField(
         max_length=50,
         choices=ICON_CHOICES,
         default="info",
     )
     content = models.TextField(blank=True)
+    wifi_network = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+    wifi_password = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+    check_in_time = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+    check_out_time = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+    check_times_note = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    breakfast_weekday_time = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+    breakfast_weekend_time = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+    breakfast_location = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+    breakfast_note = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    parking_availability = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+    parking_location = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+    parking_registration = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    parking_note = models.CharField(
+        max_length=255,
+        blank=True,
+    )
     copy_label = models.CharField(
         max_length=100,
         blank=True,
@@ -229,4 +294,39 @@ class GuestSectionLink(models.Model):
         return (
             f"{self.section.title} — "
             f"{self.label}"
+        )
+class GuestSectionItem(models.Model):
+    section = models.ForeignKey(
+        GuestSection,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+    title = models.CharField(
+        max_length=150,
+    )
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    sort_order = models.PositiveIntegerField(
+        default=0,
+    )
+    is_active = models.BooleanField(
+        default=True,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+    class Meta:
+        ordering = (
+            "sort_order",
+            "id",
+        )
+    def __str__(self):
+        return (
+            f"{self.section.title} — "
+            f"{self.title}"
         )

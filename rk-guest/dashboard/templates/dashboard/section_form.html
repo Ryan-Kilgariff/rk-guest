@@ -167,6 +167,102 @@
             padding-top: 22px;
             border-top: 1px solid #e7ebe8;
         }
+        .special-fields {
+            margin: 24px 0;
+            padding: 20px;
+            border: 1px solid #dfe6e1;
+            border-radius: 14px;
+            background: #f6f8f7;
+        }
+        .special-fields-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .special-fields-header p {
+            margin: 6px 0 20px;
+            color: #717972;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .type-fields {
+            display: none;
+        }
+        .type-fields.is-visible {
+            display: block;
+        }
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .facility-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 14px;
+            border: 1px solid #e4e8e5;
+            border-radius: 10px;
+        }
+        .facility-item-content {
+            min-width: 0;
+        }
+        .facility-description {
+            margin-top: 5px;
+            color: #737b75;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .facility-title-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .facility-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .item-edit {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #eef2ef;
+            color: #343b36;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 650;
+        }
+        .item-status {
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .item-status.active {
+            background: #e9f5ec;
+            color: #347144;
+        }
+        .item-status.inactive {
+            background: #eeeeee;
+            color: #747474;
+        }
+        @media (max-width: 600px) {
+            .facility-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .facility-actions {
+                width: 100%;
+            }
+        }
+        .section-management {
+            display: none;
+        }
+        .section-management.is-visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -212,6 +308,28 @@
                 >
             </div>
             <div class="field">
+                <label for="section_type">
+                    Section type
+                </label>
+                <select
+                    id="section_type"
+                    name="section_type"
+                >
+                    {% for value, label in section_type_choices %}
+                        <option
+                            value="{{ value }}"
+                            {% if section and section.section_type == value %}
+                                selected
+                            {% elif not section and value == "generic" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
                 <label for="icon">
                     Icon
                 </label>
@@ -239,6 +357,224 @@
                     id="content"
                     name="content"
                 >{% if section %}{{ section.content }}{% endif %}</textarea>
+            </div>
+            <div
+                class="special-fields type-fields"
+                data-section-type="wifi"
+            >
+                <div class="special-fields">
+                    <div class="special-fields-header">
+                        <h2>
+                            Wi-Fi details
+                        </h2>
+                        <p>
+                            These details will be displayed in a dedicated
+                            guest-friendly Wi-Fi panel.
+                        </p>
+                    </div>
+                    <div class="field">
+                        <label for="wifi_network">
+                            Network name
+                        </label>
+                        <input
+                            id="wifi_network"
+                            name="wifi_network"
+                            type="text"
+                            placeholder="Example: Willowmere Guest"
+                            value="{{ section.wifi_network }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="wifi_password">
+                            Wi-Fi password
+                        </label>
+                        <input
+                            id="wifi_password"
+                            name="wifi_password"
+                            type="text"
+                            placeholder="Example: welcome123"
+                            value="{{ section.wifi_password }}"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div
+                class="special-fields type-fields"
+                data-section-type="stay_times"
+            >
+                <div class="special-fields">
+                    <div class="special-fields-header">
+                        <h2>
+                            Check-in & check-out
+                        </h2>
+                        <p>
+                            These times will be highlighted clearly
+                            in the guest guide.
+                        </p>
+                    </div>
+                    <div class="field">
+                        <label for="check_in_time">
+                            Check-in time
+                        </label>
+                        <input
+                            id="check_in_time"
+                            name="check_in_time"
+                            type="text"
+                            placeholder="Example: From 3:00pm"
+                            value="{{ section.check_in_time }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="check_out_time">
+                            Check-out time
+                        </label>
+                        <input
+                            id="check_out_time"
+                            name="check_out_time"
+                            type="text"
+                            placeholder="Example: By 11:00am"
+                            value="{{ section.check_out_time }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="check_times_note">
+                            Additional note
+                        </label>
+                        <input
+                            id="check_times_note"
+                            name="check_times_note"
+                            type="text"
+                            placeholder="Example: Late check-out may be available on request."
+                            value="{{ section.check_times_note }}"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div
+                class="special-fields type-fields"
+                data-section-type="breakfast"
+            >
+                <div class="special-fields">
+                    <div class="special-fields-header">
+                        <h2>
+                            Breakfast & dining details
+                        </h2>
+                        <p>
+                            Add the key breakfast information guests
+                            are most likely to need.
+                        </p>
+                    </div>
+                    <div class="field">
+                        <label for="breakfast_weekday_time">
+                            Monday–Friday
+                        </label>
+                        <input
+                            id="breakfast_weekday_time"
+                            name="breakfast_weekday_time"
+                            type="text"
+                            placeholder="Example: 7:00am – 10:00am"
+                            value="{{ section.breakfast_weekday_time }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="breakfast_weekend_time">
+                            Saturday–Sunday
+                        </label>
+                        <input
+                            id="breakfast_weekend_time"
+                            name="breakfast_weekend_time"
+                            type="text"
+                            placeholder="Example: 7:30am – 10:30am"
+                            value="{{ section.breakfast_weekend_time }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="breakfast_location">
+                            Breakfast location
+                        </label>
+                        <input
+                            id="breakfast_location"
+                            name="breakfast_location"
+                            type="text"
+                            placeholder="Example: Ground-floor restaurant"
+                            value="{{ section.breakfast_location }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="breakfast_note">
+                            Additional note
+                        </label>
+                        <input
+                            id="breakfast_note"
+                            name="breakfast_note"
+                            type="text"
+                            placeholder="Example: Please inform reception of dietary requirements."
+                            value="{{ section.breakfast_note }}"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div
+                class="special-fields type-fields"
+                data-section-type="parking"
+            >
+                <div class="special-fields-header">
+                    <h2>
+                        Parking details
+                    </h2>
+                    <p>
+                        Add the key information guests need
+                        when arriving by car.
+                    </p>
+                </div>
+                <div class="field">
+                    <label for="parking_availability">
+                        Parking availability
+                    </label>
+                    <input
+                        id="parking_availability"
+                        name="parking_availability"
+                        type="text"
+                        placeholder="Example: Complimentary guest parking"
+                        value="{% if section %}{{ section.parking_availability }}{% endif %}"
+                    >
+                </div>
+                <div class="field">
+                    <label for="parking_location">
+                        Parking location
+                    </label>
+                    <input
+                        id="parking_location"
+                        name="parking_location"
+                        type="text"
+                        placeholder="Example: Rear of the property"
+                        value="{% if section %}{{ section.parking_location }}{% endif %}"
+                    >
+                </div>
+                <div class="field">
+                    <label for="parking_registration">
+                        Vehicle registration instructions
+                    </label>
+                    <input
+                        id="parking_registration"
+                        name="parking_registration"
+                        type="text"
+                        placeholder="Example: Register your vehicle at reception."
+                        value="{% if section %}{{ section.parking_registration }}{% endif %}"
+                    >
+                </div>
+                <div class="field">
+                    <label for="parking_note">
+                        Additional note
+                    </label>
+                    <input
+                        id="parking_note"
+                        name="parking_note"
+                        type="text"
+                        placeholder="Example: Accessible bays are available near reception."
+                        value="{% if section %}{{ section.parking_note }}{% endif %}"
+                    >
+                </div>
             </div>
             <div class="field">
                 <label for="copy_label">
@@ -298,35 +634,58 @@
         </form>
     </section>
         {% if section %}
-            <section 
-                class="links-card"
-                id="section-links"
+            <section
+                class="links-card section-items-card section-management"
+                id="section-items"
+                data-section-type="facilities"
             >
-                <div class="links-header">
-                    <div>
-                        <h2>Section links</h2>
-                        <p>
-                            Add useful actions guests can open
-                            directly from this section.
-                        </p>
-                    </div>
+            <div class="links-header">
+                <div>
+                    <h2>
+                        Facilities
+                    </h2>
+                    <p>
+                        Add facilities or services that guests
+                        may need during their stay.
+                    </p>
                 </div>
-                {% if section.links.all %}
-                    <div class="link-list">
-                        {% for link in section.links.all %}
-                            <div class="link-item">
-                                <div>
+            </div>
+            {% if section.items.all %}
+                <div class="item-list">
+                    {% for item in section.items.all %}
+                        <div class="facility-item">
+                            <div class="facility-item-content">
+                                <div class="facility-title-row">
                                     <div class="link-title">
-                                        {{ link.label }}
+                                        {{ item.title }}
                                     </div>
-                                    <div class="link-url">
-                                        {{ link.url }}
-                                    </div>
+                                    {% if item.is_active %}
+                                        <span class="item-status active">
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="item-status inactive">
+                                            Inactive
+                                        </span>
+                                    {% endif %}
                                 </div>
+                                {% if item.description %}
+                                    <div class="facility-description">
+                                        {{ item.description }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="facility-actions">
+                                <a
+                                    class="item-edit"
+                                    href="{% url 'dashboard:section_item_edit' property.slug section.id item.id %}"
+                                >
+                                    Edit
+                                </a>
                                 <form
                                     method="post"
-                                    action="{% url 'dashboard:section_link_delete' property.slug section.id link.id %}"
-                                    onsubmit="return confirm('Remove this link?');"
+                                    action="{% url 'dashboard:section_item_delete' property.slug section.id item.id %}"
+                                    onsubmit="return confirm('Remove this facility?');"
                                 >
                                     {% csrf_token %}
                                     <button
@@ -337,48 +696,177 @@
                                     </button>
                                 </form>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                <form
-                    class="add-link-form"
-                    method="post"
-                    action="{% url 'dashboard:section_link_add' property.slug section.id %}"
-                >
-                    {% csrf_token %}
-                    <div class="field">
-                        <label for="link_label">
-                            Button label
-                        </label>
-                        <input
-                            id="link_label"
-                            name="link_label"
-                            type="text"
-                            placeholder="Example: View breakfast menu"
-                            required
-                        >
-                    </div>
-                    <div class="field">
-                        <label for="link_url">
-                            URL
-                        </label>
-                        <input
-                            id="link_url"
-                            name="link_url"
-                            type="url"
-                            placeholder="https://example.com/menu"
-                            required
-                        >
-                    </div>
-                    <button
-                        class="save-button"
-                        type="submit"
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form
+                class="add-link-form"
+                method="post"
+                action="{% url 'dashboard:section_item_add' property.slug section.id %}"
+            >
+                {% csrf_token %}
+                <div class="field">
+                    <label for="item_title">
+                        Facility name
+                    </label>
+                    <input
+                        id="item_title"
+                        name="item_title"
+                        type="text"
+                        placeholder="Example: Swimming pool"
+                        required
                     >
-                        + Add link
-                    </button>
-                </form>
-            </section>
-        {% endif %}
+                </div>
+                <div class="field">
+                    <label for="item_description">
+                        Description
+                    </label>
+                    <input
+                        id="item_description"
+                        name="item_description"
+                        type="text"
+                        placeholder="Example: Open daily from 7:00am – 9:00pm"
+                    >
+                </div>
+                <button
+                    class="save-button"
+                    type="submit"
+                >
+                    + Add facility
+                </button>
+            </form>
+        </section>
+    {% endif %}
+    {% if section %}
+        <section
+            class="links-card"
+            id="section-links"
+        >
+            <div class="links-header">
+                <div>
+                    <h2>
+                        Section links
+                    </h2>
+                    <p>
+                        Add useful actions guests can open
+                        directly from this section.
+                    </p>
+                </div>
+            </div>
+            {% if section.links.all %}
+                <div class="link-list">
+                    {% for link in section.links.all %}
+                        <div class="link-item">
+                            <div>
+                                <div class="link-title">
+                                    {{ link.label }}
+                                </div>
+                                <div class="link-url">
+                                    {{ link.url }}
+                                </div>
+                            </div>
+                            <form
+                                method="post"
+                                action="{% url 'dashboard:section_link_delete' property.slug section.id link.id %}"
+                                onsubmit="return confirm('Remove this link?');"
+                            >
+                                {% csrf_token %}
+                                <button
+                                    class="link-delete"
+                                    type="submit"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form
+                class="add-link-form"
+                method="post"
+                action="{% url 'dashboard:section_link_add' property.slug section.id %}"
+            >
+                {% csrf_token %}
+                <div class="field">
+                    <label for="link_label">
+                        Button label
+                    </label>
+                    <input
+                        id="link_label"
+                        name="link_label"
+                        type="text"
+                        placeholder="Example: View breakfast menu"
+                        required
+                    >
+                </div>
+                <div class="field">
+                    <label for="link_url">
+                        URL
+                    </label>
+                    <input
+                        id="link_url"
+                        name="link_url"
+                        type="url"
+                        placeholder="https://example.com/menu"
+                        required
+                    >
+                </div>
+                <button
+                    class="save-button"
+                    type="submit"
+                >
+                    + Add link
+                </button>
+            </form>
+        </section>
+    {% endif %}
 </main>
+<script>
+const sectionTypeSelect =
+    document.getElementById("section_type");
+const typeFields =
+    document.querySelectorAll(".type-fields");
+const sectionManagement =
+    document.querySelectorAll(".section-management");
+const updateSectionTypeFields = () => {
+    const selectedType =
+        sectionTypeSelect.value;
+    typeFields.forEach(fieldGroup => {
+        const fieldType =
+            fieldGroup.dataset.sectionType;
+        if (fieldType === selectedType) {
+            fieldGroup.classList.add(
+                "is-visible"
+            );
+        } else {
+            fieldGroup.classList.remove(
+                "is-visible"
+            );
+        }
+    });
+    sectionManagement.forEach(panel => {
+        const panelType =
+            panel.dataset.sectionType;
+        if (panelType === selectedType) {
+            panel.classList.add(
+                "is-visible"
+            );
+        } else {
+            panel.classList.remove(
+                "is-visible"
+            );
+        }
+    });
+};
+    if (sectionTypeSelect) {
+        updateSectionTypeFields();
+        sectionTypeSelect.addEventListener(
+            "change",
+            updateSectionTypeFields
+        );
+    }
+</script>
 </body>
 </html>

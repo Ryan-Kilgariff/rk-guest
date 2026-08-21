@@ -315,6 +315,192 @@
             color: #7b837d;
             font-size: 18px;
         }
+        .wifi-details {
+            margin-top: 18px;
+            border: 1px solid #e1e5e2;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .wifi-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 15px;
+            background: #f6f8f7;
+        }
+        .wifi-row + .wifi-row {
+            border-top: 1px solid #e1e5e2;
+        }
+        .wifi-label {
+            margin-bottom: 4px;
+            color: #747c76;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .wifi-value {
+            font-size: 16px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+        .stay-times {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .stay-time {
+            padding: 16px;
+            border-radius: 12px;
+            background: #f6f8f7;
+        }
+        .stay-time-label {
+            margin-bottom: 5px;
+            color: #747c76;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stay-time-value {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .stay-times-note {
+            margin-top: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f1f4f2;
+            color: #626a64;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        @media (max-width: 420px) {
+            .stay-times {
+                grid-template-columns: 1fr;
+            }
+        }
+        .breakfast-details {
+            margin-top: 18px;
+            border: 1px solid #e1e5e2;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .breakfast-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 15px;
+            background: #f6f8f7;
+        }
+        .breakfast-row + .breakfast-row {
+            border-top: 1px solid #e1e5e2;
+        }
+        .breakfast-label {
+            color: #747c76;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .breakfast-value {
+            text-align: right;
+            font-size: 15px;
+            font-weight: 750;
+        }
+        .breakfast-note {
+            margin-top: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f1f4f2;
+            color: #626a64;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        @media (max-width: 420px) {
+            .breakfast-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .breakfast-value {
+                text-align: left;
+            }
+        }
+        .parking-details {
+            margin-top: 18px;
+            border: 1px solid #e1e5e2;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .parking-row {
+            padding: 15px;
+            background: #f6f8f7;
+        }
+        .parking-row + .parking-row {
+            border-top: 1px solid #e1e5e2;
+        }
+        .parking-label {
+            margin-bottom: 5px;
+            color: #747c76;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .parking-value {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        .parking-note {
+            margin-top: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f1f4f2;
+            color: #626a64;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .facility-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-top: 18px;
+        }
+        .guest-facility {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f6f8f7;
+        }
+        .guest-facility-marker {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        .guest-facility-title {
+            font-size: 15px;
+            font-weight: 750;
+        }
+        .guest-facility-description {
+            margin-top: 4px;
+            color: #69716b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -422,6 +608,188 @@
                     </summary>
                     <div class="section-content">
                         {{ section.content|linebreaks }}
+                        {% if section.section_type == "wifi" %}
+                            {% if section.wifi_network or section.wifi_password %}
+                                <div class="wifi-details">
+                                    {% if section.wifi_network %}
+                                        <div class="wifi-row">
+                                            <div>
+                                                <div class="wifi-label">
+                                                    Network
+                                                </div>
+                                                <div class="wifi-value">
+                                                    {{ section.wifi_network }}
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="copy-button"
+                                                type="button"
+                                                data-copy="{{ section.wifi_network }}"
+                                            >
+                                                Copy
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                    {% if section.wifi_password %}
+                                        <div class="wifi-row">
+                                            <div>
+                                                <div class="wifi-label">
+                                                    Password
+                                                </div>
+                                                <div class="wifi-value">
+                                                    {{ section.wifi_password }}
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="copy-button"
+                                                type="button"
+                                                data-copy="{{ section.wifi_password }}"
+                                            >
+                                                Copy
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                        {% if section.section_type == "stay_times" %}
+                        {% if section.check_in_time or section.check_out_time %}
+                            <div class="stay-times">
+                                {% if section.check_in_time %}
+                                    <div class="stay-time">
+                                        <div class="stay-time-label">
+                                            Check-in
+                                        </div>
+                                        <div class="stay-time-value">
+                                            {{ section.check_in_time }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if section.check_out_time %}
+                                    <div class="stay-time">
+                                        <div class="stay-time-label">
+                                            Check-out
+                                        </div>
+                                        <div class="stay-time-value">
+                                            {{ section.check_out_time }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if section.check_times_note %}
+                                <div class="stay-times-note">
+                                    {{ section.check_times_note }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    {% if section.section_type == "breakfast" %}
+                        {% if section.breakfast_weekday_time or section.breakfast_weekend_time or section.breakfast_location %}
+                            <div class="breakfast-details">
+                                {% if section.breakfast_weekday_time %}
+                                    <div class="breakfast-row">
+                                        <div class="breakfast-label">
+                                            Monday–Friday
+                                        </div>
+                                        <div class="breakfast-value">
+                                            {{ section.breakfast_weekday_time }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if section.breakfast_weekend_time %}
+                                    <div class="breakfast-row">
+                                        <div class="breakfast-label">
+                                            Saturday–Sunday
+                                        </div>
+                                        <div class="breakfast-value">
+                                            {{ section.breakfast_weekend_time }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if section.breakfast_location %}
+                                    <div class="breakfast-row">
+                                        <div class="breakfast-label">
+                                            Location
+                                        </div>
+                                        <div class="breakfast-value">
+                                            {{ section.breakfast_location }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if section.breakfast_note %}
+                                <div class="breakfast-note">
+                                    {{ section.breakfast_note }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    {% if section.section_type == "parking" %}
+                        {% if section.parking_availability or section.parking_location or section.parking_registration %}
+                            <div class="parking-details">
+                                {% if section.parking_availability %}
+                                    <div class="parking-row">
+                                        <div class="parking-label">
+                                            Availability
+                                        </div>
+                                        <div class="parking-value">
+                                            {{ section.parking_availability }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if section.parking_location %}
+                                    <div class="parking-row">
+                                        <div class="parking-label">
+                                            Location
+                                        </div>
+                                        <div class="parking-value">
+                                            {{ section.parking_location }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if section.parking_registration %}
+                                    <div class="parking-row">
+                                        <div class="parking-label">
+                                            Vehicle registration
+                                        </div>
+                                        <div class="parking-value">
+                                            {{ section.parking_registration }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if section.parking_note %}
+                                <div class="parking-note">
+                                    {{ section.parking_note }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    {% if section.section_type == "facilities" %}
+                        {% if section.items.all %}
+                            <div class="facility-list">
+                                {% for item in section.items.all %}
+                                    {% if item.is_active %}
+                                        <div class="guest-facility">
+                                            <div class="guest-facility-marker">
+                                                ✓
+                                            </div>
+                                            <div>
+                                                <div class="guest-facility-title">
+                                                    {{ item.title }}
+                                                </div>
+                                                {% if item.description %}
+                                                    <div class="guest-facility-description">
+                                                        {{ item.description }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
                         {% if section.copy_value %}
                             <div class="copy-block">
                                 {% if section.copy_label %}

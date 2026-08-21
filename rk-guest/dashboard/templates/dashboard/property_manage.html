@@ -534,18 +534,11 @@
                             <p class="guide-section-title">
                                 {{ section.title }}
                             </p>
-                           <div class="guide-section-meta">
-                                {% if location.is_active %}
+                            <div class="guide-section-meta">
+                                {% if section.is_published %}
                                     Active
                                 {% else %}
                                     Inactive
-                                {% endif %}
-                                ·
-                                {{ location.scans.count }}
-                                {% if location.scans.count == 1 %}
-                                    scan
-                                {% else %}
-                                    scans
                                 {% endif %}
                             </div>
                         </div>

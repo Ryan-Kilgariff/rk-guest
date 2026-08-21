@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from properties.models import (
     GuestSectionLink,
+    GuestSectionItem,
     GuestSection,
     Property,
     QRLocation,
@@ -225,8 +226,64 @@ def section_add(request, slug):
             property=property_obj,
             title=title,
             slug=section_slug,
+            section_type=request.POST.get(
+                "section_type",
+                "generic",
+            ),
             icon=request.POST.get("icon", "info"),
             content=content,
+            wifi_network=request.POST.get(
+                "wifi_network",
+                "",
+            ).strip(),
+            wifi_password=request.POST.get(
+                "wifi_password",
+                "",
+            ).strip(),
+            check_in_time=request.POST.get(
+                "check_in_time",
+                "",
+            ).strip(),
+            check_out_time=request.POST.get(
+                "check_out_time",
+                "",
+            ).strip(),
+            check_times_note=request.POST.get(
+                "check_times_note",
+                "",
+            ).strip(),
+            breakfast_weekday_time=request.POST.get(
+                "breakfast_weekday_time",
+                "",
+            ).strip(),
+            breakfast_weekend_time=request.POST.get(
+                "breakfast_weekend_time",
+                "",
+            ).strip(),
+            breakfast_location=request.POST.get(
+                "breakfast_location",
+                "",
+            ).strip(),
+            breakfast_note=request.POST.get(
+                "breakfast_note",
+                "",
+            ).strip(),
+            parking_availability=request.POST.get(
+                "parking_availability",
+                "",
+            ).strip(),
+            parking_location=request.POST.get(
+                "parking_location",
+                "",
+            ).strip(),
+            parking_registration=request.POST.get(
+                "parking_registration",
+                "",
+            ).strip(),
+            parking_note=request.POST.get(
+                "parking_note",
+                "",
+            ).strip(),
             copy_label=request.POST.get(
                 "copy_label",
                 "",
@@ -258,6 +315,7 @@ def section_add(request, slug):
             "property": property_obj,
             "section": None,
             "icon_choices": GuestSection.ICON_CHOICES,
+            "section_type_choices": GuestSection.SECTION_TYPE_CHOICES,
         },
     )
 @login_required
@@ -306,12 +364,68 @@ def section_edit(request, slug, section_id):
             )
         section.title = title
         section.slug = slugify(title)
+        section.section_type = request.POST.get(
+            "section_type",
+            section.section_type,
+        )
         section.icon = request.POST.get(
             "icon",
             section.icon,
         )
         section.content = request.POST.get(
             "content",
+            "",
+        ).strip()
+        section.wifi_network = request.POST.get(
+            "wifi_network",
+            "",
+        ).strip()
+        section.wifi_password = request.POST.get(
+            "wifi_password",
+            "",
+        ).strip()
+        section.check_in_time = request.POST.get(
+            "check_in_time",
+            "",
+        ).strip()
+        section.check_out_time = request.POST.get(
+            "check_out_time",
+            "",
+        ).strip()
+        section.check_times_note = request.POST.get(
+            "check_times_note",
+            "",
+        ).strip()
+        section.breakfast_weekday_time = request.POST.get(
+            "breakfast_weekday_time",
+            "",
+        ).strip()
+        section.breakfast_weekend_time = request.POST.get(
+            "breakfast_weekend_time",
+            "",
+        ).strip()
+        section.breakfast_location = request.POST.get(
+            "breakfast_location",
+            "",
+        ).strip()
+        section.breakfast_note = request.POST.get(
+            "breakfast_note",
+            "",
+        ).strip()
+        section.parking_availability = request.POST.get(
+            "parking_availability",
+            "",
+        ).strip()
+        section.parking_location = request.POST.get(
+            "parking_location",
+            "",
+        ).strip()
+        section.parking_registration = request.POST.get(
+            "parking_registration",
+            "",
+        ).strip()
+        section.parking_note = request.POST.get(
+            "parking_note",
             "",
         ).strip()
         section.copy_label = request.POST.get(
@@ -345,6 +459,7 @@ def section_edit(request, slug, section_id):
             "property": property_obj,
             "section": section,
             "icon_choices": GuestSection.ICON_CHOICES,
+            "section_type_choices": GuestSection.SECTION_TYPE_CHOICES,
         },
     )
 @login_required
@@ -748,4 +863,193 @@ def section_link_delete(
             },
         )
         + "#section-links"
+    )
+@login_required
+def section_item_add(
+    request,
+    slug,
+    section_id,
+):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+    )
+    if request.method == "POST":
+        title = request.POST.get(
+            "item_title",
+            "",
+        ).strip()
+        description = request.POST.get(
+            "item_description",
+            "",
+        ).strip()
+        if not title:
+            messages.error(
+                request,
+                "Facility name is required.",
+            )
+            return redirect(
+                reverse(
+                    "dashboard:section_edit",
+                    kwargs={
+                        "slug": property_obj.slug,
+                        "section_id": section.id,
+                    },
+                )
+                + "#section-items"
+            )
+        last_item = (
+            section.items
+            .order_by("-sort_order")
+            .first()
+        )
+        next_order = (
+            last_item.sort_order + 10
+            if last_item
+            else 10
+        )
+        GuestSectionItem.objects.create(
+            section=section,
+            title=title,
+            description=description,
+            sort_order=next_order,
+            is_active=True,
+        )
+        messages.success(
+            request,
+            f"{title} was added.",
+        )
+    return redirect(
+        reverse(
+            "dashboard:section_edit",
+            kwargs={
+                "slug": property_obj.slug,
+                "section_id": section.id,
+            },
+        )
+        + "#section-items"
+    )
+@login_required
+def section_item_edit(
+    request,
+    slug,
+    section_id,
+    item_id,
+):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+    )
+    item = get_object_or_404(
+        GuestSectionItem,
+        id=item_id,
+        section=section,
+    )
+    if request.method == "POST":
+        title = request.POST.get(
+            "item_title",
+            "",
+        ).strip()
+        description = request.POST.get(
+            "item_description",
+            "",
+        ).strip()
+        is_active = (
+            request.POST.get("is_active") == "on"
+        )
+        if not title:
+            messages.error(
+                request,
+                "Facility name is required.",
+            )
+            return redirect(
+                reverse(
+                    "dashboard:section_item_edit",
+                    kwargs={
+                        "slug": property_obj.slug,
+                        "section_id": section.id,
+                        "item_id": item.id,
+                    },
+                )
+            )
+        item.title = title
+        item.description = description
+        item.is_active = is_active
+        item.save()
+        messages.success(
+            request,
+            f"{item.title} was updated.",
+        )
+        return redirect(
+            reverse(
+                "dashboard:section_edit",
+                kwargs={
+                    "slug": property_obj.slug,
+                    "section_id": section.id,
+                },
+            )
+            + "#section-items"
+        )
+    return render(
+        request,
+        "dashboard/section_item_form.html",
+        {
+            "property": property_obj,
+            "section": section,
+            "item": item,
+        },
+    )
+@login_required
+def section_item_delete(
+    request,
+    slug,
+    section_id,
+    item_id,
+):
+    property_obj = get_object_or_404(
+        Property,
+        slug=slug,
+        is_active=True,
+        memberships__user=request.user,
+    )
+    section = get_object_or_404(
+        GuestSection,
+        id=section_id,
+        property=property_obj,
+    )
+    item = get_object_or_404(
+        GuestSectionItem,
+        id=item_id,
+        section=section,
+    )
+    if request.method == "POST":
+        title = item.title
+        item.delete()
+        messages.success(
+            request,
+            f"{title} was removed.",
+        )
+    return redirect(
+        reverse(
+            "dashboard:section_edit",
+            kwargs={
+                "slug": property_obj.slug,
+                "section_id": section.id,
+            },
+        )
+        + "#section-items"
     )

@@ -72,4 +72,19 @@ urlpatterns = [
         views.section_link_delete,
         name="section_link_delete",
     ),
+    path(
+        "properties/<slug:slug>/sections/<int:section_id>/items/add/",
+        views.section_item_add,
+        name="section_item_add",
+    ),
+    path(
+        "properties/<slug:slug>/sections/<int:section_id>/items/<int:item_id>/delete/",
+        views.section_item_delete,
+        name="section_item_delete",
+    ),
+    path(
+        "properties/<slug:slug>/sections/<int:section_id>/items/<int:item_id>/edit/",
+        views.section_item_edit,
+        name="section_item_edit",
+    ),
 ]
