@@ -501,6 +501,88 @@
             font-size: 13px;
             line-height: 1.5;
         }
+        .local-area-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .local-area-item {
+            padding: 15px;
+            border: 1px solid #e1e5e2;
+            border-radius: 14px;
+            background: #f6f8f7;
+        }
+        .local-area-category {
+            margin-bottom: 4px;
+            color: #747c76;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .local-area-title {
+            font-size: 16px;
+            font-weight: 750;
+        }
+        .local-area-distance {
+            margin-top: 4px;
+            color: #626a64;
+            font-size: 13px;
+            font-weight: 650;
+        }
+        .local-area-description {
+            margin-top: 7px;
+            color: #69716b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .local-area-action {
+            margin-top: 12px;
+        }
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 18px;
+        }
+        .faq-item {
+            border: 1px solid #e1e5e2;
+            border-radius: 11px;
+            background: #f6f8f7;
+            overflow: hidden;
+        }
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .faq-question::-webkit-details-marker {
+            display: none;
+        }
+        .faq-plus {
+            flex: 0 0 auto;
+            color: #747c76;
+            font-size: 19px;
+        }
+        .faq-item[open] .faq-plus {
+            transform: rotate(45deg);
+        }
+        .faq-answer {
+            padding: 0 14px 14px;
+            color: #626a64;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        .faq-answer p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -790,6 +872,77 @@
                             </div>
                         {% endif %}
                     {% endif %}
+                    {% if section.section_type == "local_area" %}
+                        {% if section.items.all %}
+                            <div class="local-area-list">
+                                {% for item in section.items.all %}
+                                    {% if item.is_active %}
+                                        <div class="local-area-item">
+                                            <div class="local-area-main">
+                                                {% if item.category %}
+                                                    <div class="local-area-category">
+                                                        {{ item.category }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="local-area-title">
+                                                    {{ item.title }}
+                                                </div>
+                                                {% if item.distance %}
+                                                    <div class="local-area-distance">
+                                                        {{ item.distance }}
+                                                    </div>
+                                                {% endif %}
+                                                {% if item.description %}
+                                                    <div class="local-area-description">
+                                                        {{ item.description }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            {% if item.url %}
+                                                <a
+                                                    class="section-action local-area-action"
+                                                    href="{{ item.url }}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {% if item.link_label %}
+                                                        {{ item.link_label }}
+                                                    {% else %}
+                                                        View details
+                                                    {% endif %}
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if section.section_type == "faq" %}
+                        {% if section.items.all %}
+                            <div class="faq-list">
+                                {% for item in section.items.all %}
+                                    {% if item.is_active %}
+                                        <details class="faq-item">
+                                            <summary class="faq-question">
+                                                <span>
+                                                    {{ item.title }}
+                                                </span>
+                                                <span class="faq-plus">
+                                                    +
+                                                </span>
+                                            </summary>
+                                            {% if item.description %}
+                                                <div class="faq-answer">
+                                                    {{ item.description|linebreaks }}
+                                                </div>
+                                            {% endif %}
+                                        </details>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
                         {% if section.copy_value %}
                             <div class="copy-block">
                                 {% if section.copy_label %}
@@ -897,32 +1050,39 @@
             : "";
     };
     document.querySelectorAll(".section-card").forEach(card => {
-        card.addEventListener("toggle", async () => {
-            if (!card.open) {
-                return;
-            }
-            if (card.dataset.tracked === "true") {
+    card.addEventListener("toggle", async () => {
+        if (!card.open) {
+            return;
+        }
+        if (card.dataset.tracked === "true") {
+            return;
+        }
+        try {
+            const response = await fetch(
+                card.dataset.trackUrl,
+                {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken(),
+                    },
+                }
+            );
+            if (!response.ok) {
+                console.error(
+                    "Section tracking failed:",
+                    response.status
+                );
                 return;
             }
             card.dataset.tracked = "true";
-            try {
-                await fetch(
-                    card.dataset.trackUrl,
-                    {
-                        method: "POST",
-                        headers: {
-                            "X-CSRFToken": getCsrfToken(),
-                        },
-                    }
-                );
-            } catch (error) {
-                console.error(
-                    "Unable to track section view.",
-                    error
-                );
-            }
-        });
+        } catch (error) {
+            console.error(
+                "Unable to track section view.",
+                error
+            );
+        }
     });
+});
 document.querySelectorAll(".copy-button").forEach(button => {
     button.addEventListener("click", async () => {
         const value = button.dataset.copy;

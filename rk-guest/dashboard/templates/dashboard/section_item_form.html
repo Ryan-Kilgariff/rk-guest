@@ -92,7 +92,13 @@
         </a>
         <section class="card">
             <h1>
-                Edit facility
+                {% if section.section_type == "faq" %}
+                    Edit question
+                {% elif section.section_type == "local_area" %}
+                    Edit recommendation
+                {% else %}
+                    Edit facility
+                {% endif %}
             </h1>
             <p class="intro">
                 Update the information guests see
@@ -102,7 +108,13 @@
                 {% csrf_token %}
                 <div class="field">
                     <label for="item_title">
-                        Facility name
+                        {% if section.section_type == "faq" %}
+                            Question
+                        {% elif section.section_type == "local_area" %}
+                            Place name
+                        {% else %}
+                            Facility name
+                        {% endif %}
                     </label>
                     <input
                         id="item_title"
@@ -114,7 +126,11 @@
                 </div>
                 <div class="field">
                     <label for="item_description">
-                        Description
+                        {% if section.section_type == "faq" %}
+                            Answer
+                        {% else %}
+                            Description
+                        {% endif %}
                     </label>
                     <input
                         id="item_description"
@@ -124,6 +140,53 @@
                         placeholder="Example: Open daily from 6:00am – 10:00pm"
                     >
                 </div>
+                {% if section.section_type == "local_area" %}
+                    <div class="field">
+                        <label for="item_category">
+                            Category
+                        </label>
+                        <input
+                            id="item_category"
+                            name="item_category"
+                            type="text"
+                            value="{{ item.category }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="item_distance">
+                            Distance or travel time
+                        </label>
+                        <input
+                            id="item_distance"
+                            name="item_distance"
+                            type="text"
+                            value="{{ item.distance }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="item_url">
+                            Website or map URL
+                        </label>
+                        <input
+                            id="item_url"
+                            name="item_url"
+                            type="url"
+                            value="{{ item.url }}"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="item_link_label">
+                            Button label
+                        </label>
+                        <input
+                            id="item_link_label"
+                            name="item_link_label"
+                            type="text"
+                            value="{{ item.link_label }}"
+                            placeholder="Example: View details"
+                        >
+                    </div>
+                {% endif %}
                 <div class="checkbox-field">
                     <input
                         id="is_active"

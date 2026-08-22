@@ -263,6 +263,37 @@
         .section-management.is-visible {
             display: block;
         }
+        .field textarea {
+            width: 100%;
+            min-height: 110px;
+            padding: 12px 13px;
+            border: 1px solid #d7ddd9;
+            border-radius: 9px;
+            font: inherit;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        .save-type-warning {
+            display: none;
+            margin-top: 12px;
+            padding: 13px 15px;
+            border: 1px solid #e8d89f;
+            border-radius: 10px;
+            background: #fff9e8;
+            color: #655719;
+        }
+        .save-type-warning.is-visible {
+            display: block;
+        }
+        .save-type-warning strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .save-type-warning p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -292,7 +323,10 @@
             {% endfor %}
         </div>
     {% endif %}
-    <section class="card">
+    <section
+        class="card"
+        id="section-manager"
+    >
         <form method="post">
             {% csrf_token %}
             <div class="field">
@@ -314,6 +348,7 @@
                 <select
                     id="section_type"
                     name="section_type"
+                    data-saved-type="{% if section %}{{ section.section_type }}{% else %}new{% endif %}"
                 >
                     {% for value, label in section_type_choices %}
                         <option
@@ -328,6 +363,18 @@
                         </option>
                     {% endfor %}
                 </select>
+                <div
+                    class="save-type-warning"
+                    id="save-type-warning"
+                >
+                    <strong>
+                        Save this section first
+                    </strong>
+                    <p>
+                        The section type has changed. Save the section
+                        before adding structured content.
+                    </p>
+                </div>
             </div>
             <div class="field">
                 <label for="icon">
@@ -639,53 +686,395 @@
                 id="section-items"
                 data-section-type="facilities"
             >
-            <div class="links-header">
-                <div>
-                    <h2>
-                        Facilities
-                    </h2>
-                    <p>
-                        Add facilities or services that guests
-                        may need during their stay.
-                    </p>
+                <div class="links-header">
+                    <div>
+                        <h2>
+                            Facilities
+                        </h2>
+                        <p>
+                            Add facilities or services that guests
+                            may need during their stay.
+                        </p>
+                    </div>
                 </div>
-            </div>
-            {% if section.items.all %}
-                <div class="item-list">
-                    {% for item in section.items.all %}
-                        <div class="facility-item">
-                            <div class="facility-item-content">
-                                <div class="facility-title-row">
-                                    <div class="link-title">
-                                        {{ item.title }}
+                {% if section.items.all %}
+                    <div class="item-list">
+                        {% for item in section.items.all %}
+                            <div class="facility-item">
+                                <div class="facility-item-content">
+                                    <div class="facility-title-row">
+                                        <div class="link-title">
+                                            {{ item.title }}
+                                        </div>
+                                        {% if item.is_active %}
+                                            <span class="item-status active">
+                                                Active
+                                            </span>
+                                        {% else %}
+                                            <span class="item-status inactive">
+                                                Inactive
+                                            </span>
+                                        {% endif %}
                                     </div>
-                                    {% if item.is_active %}
-                                        <span class="item-status active">
-                                            Active
-                                        </span>
-                                    {% else %}
-                                        <span class="item-status inactive">
-                                            Inactive
-                                        </span>
+                                    {% if item.description %}
+                                        <div class="facility-description">
+                                            {{ item.description }}
+                                        </div>
                                     {% endif %}
                                 </div>
-                                {% if item.description %}
-                                    <div class="facility-description">
-                                        {{ item.description }}
-                                    </div>
-                                {% endif %}
+                                <div class="facility-actions">
+                                    <a
+                                        class="item-edit"
+                                        href="{% url 'dashboard:section_item_edit' property.slug section.id item.id %}"
+                                    >
+                                        Edit
+                                    </a>
+                                    <form
+                                        method="post"
+                                        action="{% url 'dashboard:section_item_delete' property.slug section.id item.id %}"
+                                        onsubmit="return confirm('Remove this facility?');"
+                                    >
+                                        {% csrf_token %}
+                                        <button
+                                            class="link-delete"
+                                            type="submit"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="facility-actions">
-                                <a
-                                    class="item-edit"
-                                    href="{% url 'dashboard:section_item_edit' property.slug section.id item.id %}"
-                                >
-                                    Edit
-                                </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form
+                    class="add-link-form"
+                    method="post"
+                    action="{% url 'dashboard:section_item_add' property.slug section.id %}"
+                >
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="facility_item_title">
+                            Facility name
+                        </label>
+                        <input
+                            id="facility_item_title"
+                            name="item_title"
+                            type="text"
+                            placeholder="Example: Swimming pool"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="facility_item_description">
+                            Description
+                        </label>
+                        <input
+                            id="facility_item_description"
+                            name="item_description"
+                            type="text"
+                            placeholder="Example: Open daily from 7:00am – 9:00pm"
+                        >
+                    </div>
+                    <button
+                        class="save-button"
+                        type="submit"
+                    >
+                        + Add facility
+                    </button>
+                </form>
+            </section>
+            <section
+                class="links-card section-items-card section-management"
+                id="local-area-items"
+                data-section-type="local_area"
+            >
+                <div class="links-header">
+                    <div>
+                        <h2>
+                            Local recommendations
+                        </h2>
+                        <p>
+                            Add places guests may want to visit
+                            during their stay.
+                        </p>
+                    </div>
+                </div>
+                {% if section.items.all %}
+                    <div class="item-list">
+                        {% for item in section.items.all %}
+                            <div class="facility-item">
+                                <div class="facility-item-content">
+                                    <div class="facility-title-row">
+                                        <div class="link-title">
+                                            {{ item.title }}
+                                        </div>
+                                        {% if item.is_active %}
+                                            <span class="item-status active">
+                                                Active
+                                            </span>
+                                        {% else %}
+                                            <span class="item-status inactive">
+                                                Inactive
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if item.category %}
+                                        <div class="facility-description">
+                                            {{ item.category }}
+                                        </div>
+                                    {% endif %}
+                                    {% if item.distance %}
+                                        <div class="facility-description">
+                                            {{ item.distance }}
+                                        </div>
+                                    {% endif %}
+                                    {% if item.description %}
+                                        <div class="facility-description">
+                                            {{ item.description }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="facility-actions">
+                                    <a
+                                        class="item-edit"
+                                        href="{% url 'dashboard:section_item_edit' property.slug section.id item.id %}"
+                                    >
+                                        Edit
+                                    </a>
+                                    <form
+                                        method="post"
+                                        action="{% url 'dashboard:section_item_delete' property.slug section.id item.id %}"
+                                        onsubmit="return confirm('Remove this recommendation?');"
+                                    >
+                                        {% csrf_token %}
+                                        <button
+                                            class="link-delete"
+                                            type="submit"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form
+                    class="add-link-form"
+                    method="post"
+                    action="{% url 'dashboard:section_item_add' property.slug section.id %}"
+                >
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="local_item_title">
+                            Place name
+                        </label>
+                        <input
+                            id="local_item_title"
+                            name="item_title"
+                            type="text"
+                            placeholder="Example: Mote Park"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="local_item_category">
+                            Category
+                        </label>
+                        <input
+                            id="local_item_category"
+                            name="item_category"
+                            type="text"
+                            placeholder="Example: Park"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="local_item_distance">
+                            Distance or travel time
+                        </label>
+                        <input
+                            id="local_item_distance"
+                            name="item_distance"
+                            type="text"
+                            placeholder="Example: 10-minute walk"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="local_item_description">
+                            Description
+                        </label>
+                        <input
+                            id="local_item_description"
+                            name="item_description"
+                            type="text"
+                            placeholder="Example: Large park with lakes and walking routes."
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="local_item_url">
+                            Website or map URL
+                        </label>
+                        <input
+                            id="local_item_url"
+                            name="item_url"
+                            type="url"
+                            placeholder="https://example.com"
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="local_item_link_label">
+                            Button label
+                        </label>
+                        <input
+                            id="local_item_link_label"
+                            name="item_link_label"
+                            type="text"
+                            placeholder="Example: View details"
+                        >
+                    </div>
+                    <button
+                        class="save-button"
+                        type="submit"
+                    >
+                        + Add recommendation
+                    </button>
+                </form>
+            </section>
+            <section
+                class="links-card section-items-card section-management"
+                id="faq-items"
+                data-section-type="faq"
+            >
+                <div class="links-header">
+                    <div>
+                        <h2>
+                            Frequently asked questions
+                        </h2>
+                        <p>
+                            Add common questions and answers
+                            guests may need during their stay.
+                        </p>
+                    </div>
+                </div>
+                {% if section.items.all %}
+                    <div class="item-list">
+                        {% for item in section.items.all %}
+                            <div class="facility-item">
+                                <div class="facility-item-content">
+                                    <div class="facility-title-row">
+                                        <div class="link-title">
+                                            {{ item.title }}
+                                        </div>
+                                        {% if item.is_active %}
+                                            <span class="item-status active">
+                                                Active
+                                            </span>
+                                        {% else %}
+                                            <span class="item-status inactive">
+                                                Inactive
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if item.description %}
+                                        <div class="facility-description">
+                                            {{ item.description }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="facility-actions">
+                                    <a
+                                        class="item-edit"
+                                        href="{% url 'dashboard:section_item_edit' property.slug section.id item.id %}"
+                                    >
+                                        Edit
+                                    </a>
+                                    <form
+                                        method="post"
+                                        action="{% url 'dashboard:section_item_delete' property.slug section.id item.id %}"
+                                        onsubmit="return confirm('Remove this question?');"
+                                    >
+                                        {% csrf_token %}
+                                        <button
+                                            class="link-delete"
+                                            type="submit"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form
+                    class="add-link-form"
+                    method="post"
+                    action="{% url 'dashboard:section_item_add' property.slug section.id %}"
+                >
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="faq_item_title">
+                            Question
+                        </label>
+                        <input
+                            id="faq_item_title"
+                            name="item_title"
+                            type="text"
+                            placeholder="Example: What time is reception open?"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="faq_item_description">
+                            Answer
+                        </label>
+                        <textarea
+                            id="faq_item_description"
+                            name="item_description"
+                            rows="4"
+                            placeholder="Example: Reception is staffed from 7:00am until 11:00pm."
+                        ></textarea>
+                    </div>
+                    <button
+                        class="save-button"
+                        type="submit"
+                    >
+                        + Add question
+                    </button>
+                </form>
+            </section>
+            <section
+                class="links-card"
+                id="section-links"
+            >
+                <div class="links-header">
+                    <div>
+                        <h2>
+                            Section links
+                        </h2>
+                        <p>
+                            Add useful actions guests can open
+                            directly from this section.
+                        </p>
+                    </div>
+                </div>
+                {% if section.links.all %}
+                    <div class="link-list">
+                        {% for link in section.links.all %}
+                            <div class="link-item">
+                                <div>
+                                    <div class="link-title">
+                                        {{ link.label }}
+                                    </div>
+                                    <div class="link-url">
+                                        {{ link.url }}
+                                    </div>
+                                </div>
                                 <form
                                     method="post"
-                                    action="{% url 'dashboard:section_item_delete' property.slug section.id item.id %}"
-                                    onsubmit="return confirm('Remove this facility?');"
+                                    action="{% url 'dashboard:section_link_delete' property.slug section.id link.id %}"
+                                    onsubmit="return confirm('Remove this link?');"
                                 >
                                     {% csrf_token %}
                                     <button
@@ -696,132 +1085,48 @@
                                     </button>
                                 </form>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <form
-                class="add-link-form"
-                method="post"
-                action="{% url 'dashboard:section_item_add' property.slug section.id %}"
-            >
-                {% csrf_token %}
-                <div class="field">
-                    <label for="item_title">
-                        Facility name
-                    </label>
-                    <input
-                        id="item_title"
-                        name="item_title"
-                        type="text"
-                        placeholder="Example: Swimming pool"
-                        required
-                    >
-                </div>
-                <div class="field">
-                    <label for="item_description">
-                        Description
-                    </label>
-                    <input
-                        id="item_description"
-                        name="item_description"
-                        type="text"
-                        placeholder="Example: Open daily from 7:00am – 9:00pm"
-                    >
-                </div>
-                <button
-                    class="save-button"
-                    type="submit"
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form
+                    class="add-link-form"
+                    method="post"
+                    action="{% url 'dashboard:section_link_add' property.slug section.id %}"
                 >
-                    + Add facility
-                </button>
-            </form>
-        </section>
-    {% endif %}
-    {% if section %}
-        <section
-            class="links-card"
-            id="section-links"
-        >
-            <div class="links-header">
-                <div>
-                    <h2>
-                        Section links
-                    </h2>
-                    <p>
-                        Add useful actions guests can open
-                        directly from this section.
-                    </p>
-                </div>
-            </div>
-            {% if section.links.all %}
-                <div class="link-list">
-                    {% for link in section.links.all %}
-                        <div class="link-item">
-                            <div>
-                                <div class="link-title">
-                                    {{ link.label }}
-                                </div>
-                                <div class="link-url">
-                                    {{ link.url }}
-                                </div>
-                            </div>
-                            <form
-                                method="post"
-                                action="{% url 'dashboard:section_link_delete' property.slug section.id link.id %}"
-                                onsubmit="return confirm('Remove this link?');"
-                            >
-                                {% csrf_token %}
-                                <button
-                                    class="link-delete"
-                                    type="submit"
-                                >
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <form
-                class="add-link-form"
-                method="post"
-                action="{% url 'dashboard:section_link_add' property.slug section.id %}"
-            >
-                {% csrf_token %}
-                <div class="field">
-                    <label for="link_label">
-                        Button label
-                    </label>
-                    <input
-                        id="link_label"
-                        name="link_label"
-                        type="text"
-                        placeholder="Example: View breakfast menu"
-                        required
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="link_label">
+                            Button label
+                        </label>
+                        <input
+                            id="link_label"
+                            name="link_label"
+                            type="text"
+                            placeholder="Example: View breakfast menu"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="link_url">
+                            URL
+                        </label>
+                        <input
+                            id="link_url"
+                            name="link_url"
+                            type="url"
+                            placeholder="https://example.com/menu"
+                            required
+                        >
+                    </div>
+                    <button
+                        class="save-button"
+                        type="submit"
                     >
-                </div>
-                <div class="field">
-                    <label for="link_url">
-                        URL
-                    </label>
-                    <input
-                        id="link_url"
-                        name="link_url"
-                        type="url"
-                        placeholder="https://example.com/menu"
-                        required
-                    >
-                </div>
-                <button
-                    class="save-button"
-                    type="submit"
-                >
-                    + Add link
-                </button>
-            </form>
-        </section>
-    {% endif %}
+                        + Add link
+                    </button>
+                </form>
+            </section>
+        {% endif %}
 </main>
 <script>
 const sectionTypeSelect =
@@ -865,6 +1170,43 @@ const updateSectionTypeFields = () => {
         sectionTypeSelect.addEventListener(
             "change",
             updateSectionTypeFields
+        );
+    }
+</script>
+<script>
+    const saveTypeWarning =
+        document.getElementById("save-type-warning");
+    const savedSectionType =
+        sectionTypeSelect
+            ? sectionTypeSelect.dataset.savedType
+            : null;
+    const updateSaveTypeWarning = () => {
+        if (
+            !sectionTypeSelect ||
+            !saveTypeWarning
+        ) {
+            return;
+        }
+        const selectedType =
+            sectionTypeSelect.value;
+        if (
+            savedSectionType === "new" ||
+            selectedType !== savedSectionType
+        ) {
+            saveTypeWarning.classList.add(
+                "is-visible"
+            );
+        } else {
+            saveTypeWarning.classList.remove(
+                "is-visible"
+            );
+        }
+    };
+    if (sectionTypeSelect) {
+        updateSaveTypeWarning();
+        sectionTypeSelect.addEventListener(
+            "change",
+            updateSaveTypeWarning
         );
     }
 </script>

@@ -76,6 +76,8 @@ class GuestSection(models.Model):
     ("breakfast", "Breakfast / Dining"),
     ("parking", "Parking"),
     ("facilities", "Facilities"),
+    ("local_area", "Local Area"),
+    ("faq", "FAQ"),
     ]
     property = models.ForeignKey(
         Property,
@@ -306,6 +308,21 @@ class GuestSectionItem(models.Model):
     )
     description = models.CharField(
         max_length=255,
+        blank=True,
+    )
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+    distance = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+    url = models.URLField(
+        blank=True,
+    )
+    link_label = models.CharField(
+        max_length=100,
         blank=True,
     )
     sort_order = models.PositiveIntegerField(

@@ -222,7 +222,7 @@ def section_add(request, slug):
                 slug=property_obj.slug,
             )
         section_slug = slugify(title)
-        GuestSection.objects.create(
+        section = GuestSection.objects.create(
             property=property_obj,
             title=title,
             slug=section_slug,
@@ -305,8 +305,14 @@ def section_add(request, slug):
             f"{title} was added successfully.",
         )
         return redirect(
-            "dashboard:property_manage",
-            slug=property_obj.slug,
+            reverse(
+                "dashboard:section_edit",
+                kwargs={
+                    "slug": property_obj.slug,
+                    "section_id": section.id,
+                },
+            )
+            + "#section-manager"
         )
     return render(
         request,
@@ -449,8 +455,14 @@ def section_edit(request, slug, section_id):
             f"{section.title} was updated successfully.",
         )
         return redirect(
-            "dashboard:property_manage",
-            slug=property_obj.slug,
+            reverse(
+                "dashboard:section_edit",
+                kwargs={
+                    "slug": property_obj.slug,
+                    "section_id": section.id,
+                },
+            )
+            + "#section-manager"
         )
     return render(
         request,
@@ -890,6 +902,22 @@ def section_item_add(
             "item_description",
             "",
         ).strip()
+        category = request.POST.get(
+            "item_category",
+            "",
+        ).strip()
+        distance = request.POST.get(
+            "item_distance",
+            "",
+        ).strip()
+        url = request.POST.get(
+            "item_url",
+            "",
+        ).strip()
+        link_label = request.POST.get(
+            "item_link_label",
+            "",
+        ).strip()
         if not title:
             messages.error(
                 request,
@@ -919,6 +947,10 @@ def section_item_add(
             section=section,
             title=title,
             description=description,
+            category=category,
+            distance=distance,
+            url=url,
+            link_label=link_label,
             sort_order=next_order,
             is_active=True,
         )
@@ -968,6 +1000,22 @@ def section_item_edit(
             "item_description",
             "",
         ).strip()
+        category = request.POST.get(
+            "item_category",
+            "",
+        ).strip()
+        distance = request.POST.get(
+            "item_distance",
+            "",
+        ).strip()
+        url = request.POST.get(
+            "item_url",
+            "",
+        ).strip()
+        link_label = request.POST.get(
+            "item_link_label",
+            "",
+        ).strip()
         is_active = (
             request.POST.get("is_active") == "on"
         )
@@ -989,6 +1037,10 @@ def section_item_edit(
         item.title = title
         item.description = description
         item.is_active = is_active
+        item.category = category
+        item.distance = distance
+        item.url = url
+        item.link_label = link_label
         item.save()
         messages.success(
             request,

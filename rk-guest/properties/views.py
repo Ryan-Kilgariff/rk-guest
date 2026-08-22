@@ -10,10 +10,12 @@ from .models import (
     QRLocation,
     QRScan,
 )
+from django.views.decorators.csrf import ensure_csrf_cookie
 def get_guest_session_key(request):
     if not request.session.session_key:
         request.session.create()
     return request.session.session_key
+@ensure_csrf_cookie
 def guest_portal(request, slug):
     property_obj = get_object_or_404(
         Property,
