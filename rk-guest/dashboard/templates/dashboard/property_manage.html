@@ -1,29 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-        Manage {{ property.name }} | RK Guest
-    </title>
-    <style>
-        * {
-            box-sizing: border-box;
+{% extends "dashboard/base.html" %}
+{% block title %}
+{{ property.name }} | RK Guest
+{% endblock %}
+<div class="page-breadcrumbs">
+    <a href="{% url 'dashboard:home' %}">
+        Dashboard
+    </a>
+    <span>
+        /
+    </span>
+    <span>
+        {{ property.name }}
+    </span>
+</div>
+    {% block extra_css %}
+        .page-breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #7a827c;
+            font-size: 13px;
         }
-        body {
-            margin: 0;
-            font-family:
-                Inter,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-            background: #f3f5f4;
-            color: #202521;
+        .page-breadcrumbs a {
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .page-breadcrumbs a:hover {
+            text-decoration: underline;
         }
         .topbar {
             padding: 18px 28px;
@@ -396,9 +402,7 @@
             background: #fff0f0;
             color: #9a2929;
         }
-    </style>
-</head>
-<body>
+    {% endblock %}
 <header class="topbar">
     <div class="topbar-inner">
         <div class="brand">
@@ -412,6 +416,7 @@
         </a>
     </div>
 </header>
+{% block content %}
 <main class="container">
     <h1>
         Manage {{ property.name }}
@@ -826,6 +831,8 @@
         </form>
     </section>
 </main>
+{% endblock %}
+{% block extra_js %}
 <script>
     const getCsrfToken = () => {
         const cookie = document.cookie
@@ -837,8 +844,10 @@
     };
     document.querySelectorAll(".move-button").forEach(button => {
         button.addEventListener("click", async () => {
-            const section = button.closest(".guide-section");
-            const direction = button.dataset.direction;
+            const section =
+                button.closest(".guide-section");
+            const direction =
+                button.dataset.direction;
             const response = await fetch(
                 button.dataset.url,
                 {
@@ -850,14 +859,19 @@
                 }
             );
             if (!response.ok) {
-                console.error("Unable to move section.");
+                console.error(
+                    "Unable to move section."
+                );
                 return;
             }
             if (direction === "up") {
-                const previous = section.previousElementSibling;
+                const previous =
+                    section.previousElementSibling;
                 if (
                     previous &&
-                    previous.classList.contains("guide-section")
+                    previous.classList.contains(
+                        "guide-section"
+                    )
                 ) {
                     section.parentNode.insertBefore(
                         section,
@@ -866,10 +880,13 @@
                 }
             }
             if (direction === "down") {
-                const next = section.nextElementSibling;
+                const next =
+                    section.nextElementSibling;
                 if (
                     next &&
-                    next.classList.contains("guide-section")
+                    next.classList.contains(
+                        "guide-section"
+                    )
                 ) {
                     section.parentNode.insertBefore(
                         next,
@@ -880,5 +897,4 @@
         });
     });
 </script>
-</body>
-</html>
+{% endblock %}

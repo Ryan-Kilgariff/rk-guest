@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "dashboard/base.html" %}
+{% block title %}
+    {{ location.name }} QR | RK Guest
+{% endblock %}
     <meta charset="UTF-8">
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
     <title>{{ location.name }} QR | RK Guest</title>
-    <style>
+    {% block extra_css %}
+
         * {
             box-sizing: border-box;
         }
@@ -72,16 +74,39 @@
             font-size: 14px;
             font-weight: 700;
         }
-    </style>
-</head>
-<body>
+        .page-breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #7a827c;
+            font-size: 13px;
+        }
+        .page-breadcrumbs a {
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .page-breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+    {% endblock %}
+{% block content %}
 <main class="container">
-    <a
-        class="back"
-        href="{% url 'dashboard:property_manage' property.slug %}"
-    >
-        ← Back to {{ property.name }}
-    </a>
+    <div class="page-breadcrumbs">
+        <a href="{% url 'dashboard:home' %}">
+            Dashboard
+        </a>
+        <span>/</span>
+        <a href="{% url 'dashboard:property_manage' property.slug %}">
+            {{ property.name }}
+        </a>
+        <span>/</span>
+        <span>
+            {{ location.name }}
+        </span>
+    </div>
     <section class="card">
         <h1>{{ location.name }}</h1>
         <div class="property-name">
@@ -115,5 +140,4 @@
             </a>
         </div>
     </main>
-</body>
-</html>
+{% endblock %}

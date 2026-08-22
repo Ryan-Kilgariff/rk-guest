@@ -1,35 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-        {% if location %}
-            Edit {{ location.name }}
-        {% else %}
-            Add QR Location
-        {% endif %}
-        | RK Guest
-    </title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family:
-                Inter,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-            background: #f3f5f4;
-            color: #202521;
-        }
+{% extends "dashboard/base.html" %}
+{% block title %}
+    {% if location %}
+        Edit {{ location.name }} | RK Guest
+    {% else %}
+        Add QR location | RK Guest
+    {% endif %}
+{% endblock %}
+    {% block extra_css %}
         .container {
             max-width: 700px;
             margin: 0 auto;
@@ -93,33 +70,43 @@
         .checkbox-field label {
             margin: 0;
         }
-    </style>
-</head>
-<body>
+        .page-breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #7a827c;
+            font-size: 13px;
+        }
+        .page-breadcrumbs a {
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .page-breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+    {% endblock %}
+{% block content %}
 <main class="container">
-    <a
-        class="back"
-        href="{% url 'dashboard:property_manage' property.slug %}"
-    >
-        ← Back to {{ property.name }}
-    </a>
-    <h1>
-        {% if location %}
-            Edit {{ location.name }}
-        {% else %}
-            Add QR location
-        {% endif %}
-    </h1>
-    <p>
-        Create a physical location for an RK Guest QR code.
-    </p>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message {{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    <div class="page-breadcrumbs">
+        <a href="{% url 'dashboard:home' %}">
+            Dashboard
+        </a>
+        <span>/</span>
+        <a href="{% url 'dashboard:property_manage' property.slug %}">
+            {{ property.name }}
+        </a>
+        <span>/</span>
+        <span>
+            {% if location %}
+                {{ location.name }}
+            {% else %}
+                Add QR location
+            {% endif %}
+        </span>
+    </div>
     <section class="card">
     <form method="post">
         {% csrf_token %}
@@ -164,5 +151,4 @@
     </form>
 </section>
 </main>
-</body>
-</html>
+{% endblock %}

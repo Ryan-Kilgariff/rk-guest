@@ -1046,6 +1046,12 @@ def section_item_edit(
             request,
             f"{item.title} was updated.",
         )
+        if section.section_type == "local_area":
+            anchor = "#local-area-items"
+        elif section.section_type == "faq":
+            anchor = "#faq-items"
+        else:
+            anchor = "#section-items"
         return redirect(
             reverse(
                 "dashboard:section_edit",
@@ -1054,7 +1060,7 @@ def section_item_edit(
                     "section_id": section.id,
                 },
             )
-            + "#section-items"
+            + anchor
         )
     return render(
         request,

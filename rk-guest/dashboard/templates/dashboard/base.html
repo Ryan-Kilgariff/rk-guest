@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+        {% block title %}
+            RK Guest
+        {% endblock %}
+    </title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #f4f6f5;
+            color: #252b27;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+        .dashboard-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e6e3;
+        }
+        .dashboard-header-inner {
+            width: min(1180px, calc(100% - 32px));
+            min-height: 64px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .dashboard-brand {
+            color: #252b27;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .dashboard-nav {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .dashboard-nav form {
+            margin: 0;
+        }
+        .dashboard-nav-link,
+        .dashboard-logout {
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .dashboard-nav-link {
+            color: #525b54;
+            text-decoration: none;
+        }
+        .dashboard-nav-link:hover {
+            background: #f2f5f3;
+        }
+        .dashboard-logout {
+            border: 1px solid #dde2de;
+            background: #ffffff;
+            color: #525b54;
+            cursor: pointer;
+        }
+        .dashboard-logout:hover {
+            background: #f2f5f3;
+        }
+        @media (max-width: 520px) {
+            .dashboard-header-inner {
+                min-height: 58px;
+            }
+            .dashboard-nav {
+                gap: 5px;
+            }
+            .dashboard-nav-link,
+            .dashboard-logout {
+                padding: 8px;
+            }
+        }
+        {% block extra_css %}
+        {% endblock %}
+    </style>
+</head>
+<body>
+    {% block dashboard_header %}
+    <header class="dashboard-header">
+        <div class="dashboard-header-inner">
+            <a
+                class="dashboard-brand"
+                href="{% url 'dashboard:home' %}"
+            >
+                RK Guest
+            </a>
+            <nav class="dashboard-nav">
+                <a
+                    href="{% url 'dashboard:home' %}"
+                    class="dashboard-nav-link"
+                >
+                    Dashboard
+                </a>
+                <form
+                    method="post"
+                    action="{% url 'logout' %}"
+                >
+                    {% csrf_token %}
+                    <button
+                        class="dashboard-logout"
+                        type="submit"
+                    >
+                        Sign out
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </header>
+    {% endblock %}
+    {% block content %}
+    {% endblock %}
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

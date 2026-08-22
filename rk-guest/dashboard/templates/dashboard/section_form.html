@@ -1,6 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "dashboard/base.html" %}
+{% block title %}
+    {% if section %}
+        Edit {{ section.title }} | RK Guest
+    {% else %}
+        Add guest section | RK Guest
+    {% endif %}
+{% endblock %}
     <meta charset="UTF-8">
     <meta
         name="viewport"
@@ -14,22 +19,7 @@
         {% endif %}
         | RK Guest
     </title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family:
-                Inter,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
-            background: #f3f5f4;
-            color: #202521;
-        }
+    {% block extra_css %}
         .container {
             max-width: 760px;
             margin: 0 auto;
@@ -294,35 +284,43 @@
             font-size: 13px;
             line-height: 1.5;
         }
-    </style>
-</head>
-<body>
+        .page-breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #7a827c;
+            font-size: 13px;
+        }
+        .page-breadcrumbs a {
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .page-breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+    {% endblock %}
+{% block content %}
 <main class="container">
-    <a
-        class="back"
-        href="{% url 'dashboard:property_manage' property.slug %}"
-    >
-        ← Back to {{ property.name }}
-    </a>
-    <h1>
-        {% if section %}
-            Edit {{ section.title }}
-        {% else %}
-            Add guest section
-        {% endif %}
-    </h1>
-    <p class="subtitle">
-        Manage the information guests see in their digital guide.
-    </p>
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div class="page-breadcrumbs">
+        <a href="{% url 'dashboard:home' %}">
+            Dashboard
+        </a>
+        <span>/</span>
+        <a href="{% url 'dashboard:property_manage' property.slug %}">
+            {{ property.name }}
+        </a>
+        <span>/</span>
+        <span>
+            {% if section %}
+                {{ section.title }}
+            {% else %}
+                Add section
+            {% endif %}
+        </span>
+    </div>
     <section
         class="card"
         id="section-manager"
@@ -1128,6 +1126,8 @@
             </section>
         {% endif %}
 </main>
+{% endblock %}
+{% block extra_js %}
 <script>
 const sectionTypeSelect =
     document.getElementById("section_type");
@@ -1210,5 +1210,4 @@ const updateSectionTypeFields = () => {
         );
     }
 </script>
-</body>
-</html>
+{% endblock %}

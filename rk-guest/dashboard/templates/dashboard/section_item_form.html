@@ -1,6 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "dashboard/base.html" %}
+{% block title %}
+    Edit {{ item.title }} | RK Guest
+{% endblock %}
     <meta charset="UTF-8">
     <meta
         name="viewport"
@@ -9,19 +10,7 @@
     <title>
         Edit {{ item.title }} | RK Guest
     </title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            background: #f4f6f5;
-            color: #252b27;
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-        }
+    {% block extra_css %}
         .page {
             width: min(760px, calc(100% - 32px));
             margin: 40px auto;
@@ -80,16 +69,44 @@
             font-weight: 700;
             cursor: pointer;
         }
-    </style>
-</head>
-<body>
+        .page-breadcrumbs {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 14px;
+            color: #7a827c;
+            font-size: 13px;
+        }
+        .page-breadcrumbs a {
+            color: #59635c;
+            text-decoration: none;
+            font-weight: 650;
+        }
+        .page-breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+    {% endblock %}
+    {% block content %}
     <main class="page">
-        <a
-            class="back-link"
-            href="{% url 'dashboard:section_edit' property.slug section.id %}#section-items"
-        >
-            ← Back to {{ section.title }}
-        </a>
+        <div class="page-breadcrumbs">
+            <a href="{% url 'dashboard:home' %}">
+                Dashboard
+            </a>
+            <span>/</span>
+            <a href="{% url 'dashboard:property_manage' property.slug %}">
+                {{ property.name }}
+            </a>
+            <span>/</span>
+            <a
+                href="{% url 'dashboard:section_edit' property.slug section.id %}{% if section.section_type == 'local_area' %}#local-area-items{% elif section.section_type == 'faq' %}#faq-items{% else %}#section-items{% endif %}"            >
+                {{ section.title }}
+            </a>
+            <span>/</span>
+            <span>
+                {{ item.title }}
+            </span>
+        </div>
         <section class="card">
             <h1>
                 {% if section.section_type == "faq" %}
@@ -207,5 +224,4 @@
             </form>
         </section>
     </main>
-</body>
-</html>
+{% endblock %}
